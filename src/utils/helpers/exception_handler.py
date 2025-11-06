@@ -2,6 +2,7 @@ from fastapi import Request
 from fastapi.exceptions import RequestValidationError
 from fastapi.responses import JSONResponse
 from starlette.exceptions import HTTPException as StarletteHTTPException
+from starlette.middleware.base import BaseHTTPMiddleware, RequestResponseEndpoint
 
 from src.utils.helpers.error_messages import *
 from src.utils.helpers.error_types import *
@@ -46,9 +47,41 @@ async def validation_exception_handler(request: Request, exc: RequestValidationE
 #     return build_error_response(internalServerErrorMessage, statusCodes['500'])
 
 
+
+
 async def catch_exceptions_middleware(request: Request, call_next):
     try:
         return await call_next(request)
+    # except redis.ConnectionError:
+    #     return build_error_response(
+    #         serviceUnavailableErrorMessage, statusCodes['500'], 
+    #         data={
+    #             "verbose_message": "Error: Redis service unavailable",
+    #             "error_type": errorTypes['SERVICE_UNAVAILABLE'],
+    #         })
+    # except redis.TimeoutError:
+    #     return build_error_response(
+    #         internalServerErrorMessage, statusCodes['504'], 
+    #         data={
+    #             "verbose_message": f"Error: Redis operation timed out",
+    #             "error_type": errorTypes['INTERNAL_SERVER_ERROR'],
+    #         })
+    # except httpx.ConnectTimeout as exc:
+    #     logging.error(f"{internalServerErrorMessage}: {exc}", exc_info=False)
+    #     return build_error_response(
+    #         internalServerErrorMessage, statusCodes['504'], 
+    #         data={
+    #             "verbose_message": f"Error: operation timed out",
+    #             "error_type": errorTypes['INTERNAL_SERVER_ERROR'],
+    #         })
+    except RuntimeError as exc:
+        logging.error(f"{internalServerErrorMessage}: {exc}", exc_info=False)
+        return build_error_response(
+            internalServerErrorMessage, statusCodes['500'], 
+            data={
+                "verbose_message": f"Error: {exc}",
+                "error_type": errorTypes['INTERNAL_SERVER_ERROR'],
+            })
     except Exception as exc:
         logging.error(f"{internalServerErrorMessage}: {exc}", exc_info=False)
         return build_error_response(
@@ -57,3 +90,8 @@ async def catch_exceptions_middleware(request: Request, call_next):
                 "verbose_message": f"Error: {exc}",
                 "error_type": errorTypes['INTERNAL_SERVER_ERROR'],
             })
+
+
+class ExceptionMiddleware(BaseHTTPMiddleware):
+    async def dispatch(self, request: Request, call_next):
+        return await catch_exceptions_middleware(request, call_next)
