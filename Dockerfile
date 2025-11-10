@@ -1,7 +1,7 @@
 # Base image
 FROM python:3.11-slim
 
-WORKDIR /app
+WORKDIR /src
 
 # Copy files
 COPY requirements.txt .
