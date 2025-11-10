@@ -1,8 +1,7 @@
 import os, logging, asyncio
 from dotenv import load_dotenv
 from pydantic_settings import BaseSettings, SettingsConfigDict
-from src.utils.libs import log_handler
-
+from src.utils.libs import log_handler, logger
 
 logging.basicConfig(level=logging.DEBUG, handlers=[log_handler])
 baseDir = os.path.abspath(os.path.dirname(__file__))
@@ -12,6 +11,7 @@ load_dotenv(f"{baseDir}/.conf")
 # Settings class using Pydantic
 class AppSettings(BaseSettings):
     debug: bool
+    is_demo: bool = True
     app_name: str
     app_description: str
     app_origins: list[str]
@@ -21,6 +21,7 @@ class AppSettings(BaseSettings):
     secret_key: str
     db_name: str
     sqlalchemy_database_uri: str
+    remotedb_url: str
 
     qbwc_soap_url: str = "http://schemas.xmlsoap.org/soap/envelope/"
     qbwc_url: str = "http://developer.intuit.com/"
