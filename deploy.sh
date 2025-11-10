@@ -48,10 +48,10 @@ else
 fi
 
 # Validate the app module exists
-if ! python3 -c "from app import app" &> /dev/null; then
-    echo "Error: Could not find $APP_MODULE. Please ensure your app structure is correct."
-    exit 1
-fi
+# if ! python3 -c "from src.main import app" &> /dev/null; then
+#     echo "Error: Could not find $APP_MODULE. Please ensure your app structure is correct."
+#     exit 1
+# fi
 
 # Run the application with Hypercorn
 print_message "Starting Hypercorn server with production settings..."

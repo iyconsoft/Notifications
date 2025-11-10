@@ -1,2 +1,2 @@
-from src.routers.user_router import userRouter, appRouter, APIRouter
-from src.routers.sync_router import syncRouter
+from src.routers.app_router import appRouter, APIRouter
+

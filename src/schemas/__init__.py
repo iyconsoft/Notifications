@@ -1,1 +1,1 @@
-from .user_schema import *
+from .notification_schema import *

@@ -21,13 +21,16 @@ class AppSettings(BaseSettings):
     secret_key: str
     db_name: str
     sqlalchemy_database_uri: str
-    remotedb_url: str
-
-    qbwc_soap_url: str = "http://schemas.xmlsoap.org/soap/envelope/"
-    qbwc_url: str = "http://developer.intuit.com/"
-    qbwc_username: str = "ifitness_qbwc_user"
-    qbwc_password: str = "ifitness_qbwc_pass"
-    qwbcmodules: list[str] = ["customers", "employees", "invoices", "gl_entries"]
+    mail_server: str
+    mail_port: int
+    mail_sender: int
+    mail_username: str
+    mail_password: str
+    mail_from_name: str
+    mail_tls: bool
+    mail_ssl: bool
+    use_credentials: bool
+    validate_certs: bool
 
     model_config = SettingsConfigDict(env_file=".conf") 
 
