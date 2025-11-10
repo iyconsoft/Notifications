@@ -1,7 +1,9 @@
-from fastapi import APIRouter, Depends, status, Request
+from fastapi import APIRouter, Depends, status, Request, BackgroundTasks
 from fastapi.responses import Response
 from src.utils import build_success_response, build_error_response, check_db, check_app
 from src.core.config import logging
+from src.schemas import IUser, IAuth
+from src.repositories import AuthenticateRepository, UserRepository
 
 
 appRouter = APIRouter()
@@ -10,7 +12,6 @@ userRouter = APIRouter(tags=["User & Authentication"])
 @appRouter.get("/")
 async def home():
     return build_success_response(message="IFitness sync app is running ✅")
-
 
 @appRouter.get("/favicon.ico", include_in_schema=False)
 async def favicon():
@@ -42,3 +43,40 @@ async def health_check(request: Request):
         "acknowledged", status.HTTP_200_OK, health_status
     )
     
+@userRouter.post("/login", summary="User login Endpoint")
+async def login(data: IAuth, background_task: BackgroundTasks):
+    try:
+        return await AuthenticateRepository.login(data, background_task)
+        # return build_success_response(message="login fucntion")
+    except Exception as e:
+        return build_error_response(
+            f"Error processing sync type: {e}", status.HTTP_500_INTERNAL_SERVER_ERROR, {}
+        )
+
+@userRouter.post("/verify", summary="User verification Endpoint")
+async def verify_otp(data: IAuth, request: Request):
+    try:
+        return build_success_response(message="user otp verification fucntion")
+    except Exception as e:
+        return build_error_response(
+            f"Error processing sync type: {e}", status.HTTP_500_INTERNAL_SERVER_ERROR, {}
+        )
+
+@userRouter.post("/user", summary="User creation Endpoint")
+async def create_user(data: IUser):
+    try:
+        return await UserRepository.create(data)
+    except Exception as e:
+        return build_error_response(
+            f"Error processing sync type: {e}", status.HTTP_500_INTERNAL_SERVER_ERROR, {}
+        )
+
+@userRouter.get("/user/{uid}", summary="Get user by uid Endpoint")
+async def get_user(uid: str):
+    try:
+        return await UserRepository.get_user(uid)
+    except Exception as e:
+        return build_error_response(
+            f"Error processing sync type: {e}", status.HTTP_500_INTERNAL_SERVER_ERROR, {}
+        )
+
