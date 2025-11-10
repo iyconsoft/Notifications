@@ -1,7 +1,9 @@
 from src.services import *
 from src.constants import *
+from src.core import settings, db
+from sqlalchemy import text
 
-async def handle_qbwc(type: str, request: Request, data: dict):
+async def handle_qbwc(dbsession, type: str, request: Request, data: dict):
     """Handle all QBWC SOAP requests"""
     try:
         # Get the raw XML body
@@ -15,7 +17,7 @@ async def handle_qbwc(type: str, request: Request, data: dict):
         if not method_name:
             raise HTTPException(status_code=400, detail="Invalid SOAP request")
         
-        sync_queue = await generate_sync_data(type)
+        sync_queue = await generate_sync_data(dbsession, type)
         
         # Route to the appropriate handler
         if method_name == "authenticate":
@@ -44,20 +46,42 @@ async def handle_qbwc(type: str, request: Request, data: dict):
         raise HTTPException(status_code=500, detail=f"Error handling QBWC request: {e}")
 
 
-async def generate_sync_data(type: str):
+async def generate_sync_data(session, type: str):
     """Generate data to be synced to QuickBooks"""
     try:
-        # For demonstration, we will just return the constant data
         sync_queue = []
+        # if settings.is_demo is False:
+        #     CUSTOMERS_TO_SYNC = await get_remote_data(session, "customers")
+        #     EMPLOYEES_TO_SYNC = await get_remote_data(session, "employees")
+        #     INVOICES_TO_SYNC = await get_remote_data(session, "invoices")
+        #     GL_ENTRIES_TO_SYNC = await get_remote_data(session, "gl_entries")
+
         data_to_sync = {
             "customers": CUSTOMERS_TO_SYNC,
             "employees": EMPLOYEES_TO_SYNC,
             "invoices": INVOICES_TO_SYNC,
             "gl_entries": GL_ENTRIES_TO_SYNC
         }
-        
-        for data in data_to_sync[type]:
-            sync_queue.append({"type": type, "id": data['id'], "data": data})
+
+        if type is None:            
+            for module in settings.qwbcmodules:
+                for data in data_to_sync[module]:
+                    sync_queue.append({"type": module, "id": data['id'], "data": data, "retries": 0})
+        else:
+            for data in data_to_sync[type]:
+                sync_queue.append({"type": type, "id": data['id'], "data": data, "retries": 0})
+
+        logging.info(f"sync data {sync_queue}")
         return sync_queue
+    except Exception as e:
+        raise Exception(f"Error generating data for sync: {e}")
+
+
+async def get_remote_data(session, table: str, limit: int = 100):
+    """Get data to be synced to QuickBooks from remote db"""
+    try:
+        stmt = text(f"SELECT * FROM {table} LIMIT :limit")
+        result = await session.execute(stmt, {"limit": limit})
+        rows = result.fetchall()
     except Exception as e:
         raise Exception(f"Error generating data for sync: {e}")
