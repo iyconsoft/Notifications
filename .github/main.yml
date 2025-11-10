@@ -1,0 +1,186 @@
+name: CI
+
+on:
+  push:
+    branches: [ "main" ]
+  workflow_dispatch:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    
+    strategy:
+      matrix:
+        python-version: ["3.12"]
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Set up Python ${{ matrix.python-version }}
+      uses: actions/setup-python@v4
+      with:
+        python-version: ${{ matrix.python-version }}
+    
+    - name: Run linting
+      run: |
+        # Install flake8 for basic linting
+        pip install flake8
+        flake8 app --count --select=E9,F63,F7,F82 --show-source --statistics > flake_report1.txt || true
+        flake8 app --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics > flake_report2.txt || true
+      continue-on-error: false
+
+    - name: Upload Flake report
+      uses: actions/upload-artifact@v4
+      with:
+        name: Flake-Results
+        path: flake_report1.txt
+
+    - name: Upload Flake report
+      uses: actions/upload-artifact@v4
+      with:
+        name: Flake-Results
+        path: flake_report2.txt
+    
+    # Code Security Scanning (Bandit)
+    - name: Install and run Bandit (Python security)
+      run: |
+        pip install bandit
+        bandit -r ./app -f txt -o bandit_report.txt || true
+      continue-on-error: true
+
+    - name: Upload Bandit report
+      uses: actions/upload-artifact@v4
+      with:
+        name: Bandit-Results
+        path: bandit_report.txt
+        
+
+    - name: Check code formatting with Black
+      run: |
+        pip install black
+        black --check ./app > black_report.txt || true
+
+    - name: Upload Black report
+      uses: actions/upload-artifact@v4
+      with:
+        name: Black-Results
+        path: black_report.txt
+
+    # Dependency Scanning (Safety)
+    - name: Scan Python dependencies
+      run: |
+        pip install safety
+        safety check --json > safety_report.json || true
+      continue-on-error: true
+
+    - name: Upload Safety report
+      uses: actions/upload-artifact@v4
+      with:
+        name: Safety-Results
+        path: safety_report.json
+
+    # Secret Scanning
+    - name: Detect secrets in code
+      run: |
+        pip install detect-secrets
+        detect-secrets scan > secrets_scan.json || true
+      continue-on-error: true
+
+    - name: Upload Secrets scan
+      uses: actions/upload-artifact@v4
+      with:
+        name: Secrets-Scan-Results
+        path: secrets_scan.json
+
+  build:
+    runs-on: ubuntu-latest
+    
+    strategy:
+      matrix:
+        python-version: ["3.12"]
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v4
+        with:
+          python-version: ${{ matrix.python-version }}
+          
+      # Login to Docker Hub
+      - name: Login to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: iyconsoft
+          password: Iyconsoft2025#
+
+      # Build and tag Docker images
+      - name: Build and tag Docker images
+        run: |
+          docker build --no-cache -t iyconsoft/iyconsoft_repo:notificationApp .
+          docker tag iyconsoft/iyconsoft_repo:notificationApp  iyconsoft/iyconsoft_repo:notificationApp 
+
+      # Push images to Docker Hub
+      - name: Push images to Docker Hub
+        run: |
+          docker push iyconsoft/iyconsoft_repo:notificationApp 
+
+      # Install Trivy
+      - name: Install Trivy
+        run: |
+          sudo apt-get install -y wget
+          wget https://github.com/aquasecurity/trivy/releases/download/v0.61.0/trivy_0.61.0_Linux-64bit.tar.gz
+          tar -xf trivy_0.61.0_Linux-64bit.tar.gz
+          sudo mv trivy /usr/local/bin/
+
+      # Scan Docker images with Trivy
+      - name: Scan Docker images for vulnerabilities using Trivy
+        run: |
+          echo "===== Scanning Central-Mycaller Application =====" > trivy_report.txt
+          trivy image --exit-code 0 --severity CRITICAL,HIGH iyconsoft/iyconsoft_repo:notificationApp  >> trivy_report.txt
+          echo -e "\n" >> trivy_report.txt
+
+      - name: Upload Trivy report
+        uses: actions/upload-artifact@v4
+        with:
+          name: Trivy-Results
+          path: trivy_report.txt
+
+
+      # Install Dockle
+      - name: Install Dockle
+        run: |
+          DOCKLE_VERSION=0.4.14
+          wget https://github.com/goodwithtech/dockle/releases/download/v${DOCKLE_VERSION}/dockle_${DOCKLE_VERSION}_Linux-64bit.tar.gz
+          tar -xzf dockle_${DOCKLE_VERSION}_Linux-64bit.tar.gz
+          sudo mv dockle /usr/local/bin/
+          dockle --version
+
+      # Dockle compliance checks
+      - name: Run Dockle compliance checks
+        run: |
+          echo "===== Dockle check for Notification Application =====" > dockle_report.txt
+          dockle iyconsoft/iyconsoft_repo:notificationApp  >> dockle_report.txt || true
+
+      - name: Upload Dockle report
+        uses: actions/upload-artifact@v4
+        with:
+          name: Dockle-Results
+          path: dockle_report.txt
+
+      # Install Hadolint
+      - name: Install Hadolint
+        run: |
+          wget -O /usr/local/bin/hadolint https://github.com/hadolint/hadolint/releases/latest/download/hadolint-Linux-x86_64
+          chmod +x /usr/local/bin/hadolint
+
+      # Lint Dockerfiles
+      - name: Lint Dockerfiles
+        run: |
+          find . -type f -name "Dockerfile*" -exec hadolint {} \; >> hadolint_report.txt || true
+
+      - name: Upload Hadolint report
+        uses: actions/upload-artifact@v4
+        with:
+          name: Hadolint-Results
+          path: hadolint_report.txt
