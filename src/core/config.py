@@ -21,6 +21,7 @@ class AppSettings(BaseSettings):
     secret_key: str
     db_name: str
     sqlalchemy_database_uri: str
+
     mail_server: str
     mail_port: int
     mail_sender: int
@@ -31,6 +32,24 @@ class AppSettings(BaseSettings):
     mail_ssl: bool
     use_credentials: bool
     validate_certs: bool
+
+    odoo_url: str = "https://backoffice.kreador.io/jsonrpc"
+    odoo_headers = {
+        'Content-Type': 'application/json'
+    }
+    odoo_payload: dict = {
+        "jsonrpc": "2.0",
+        "method": "call",
+        "params": {
+            "service": "object",
+            "method": "execute",
+            "args": [
+                "developer_backoffice_db",
+                2,
+                "admin"
+            ]
+        }
+    }
 
     model_config = SettingsConfigDict(env_file=".conf") 
 
