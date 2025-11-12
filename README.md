@@ -3,130 +3,119 @@
 **Version:** 0.0.1  
 **Author:** Iyconsoft  
 
-A lightweight notification service API built with **FastAPI** for sending email notifications and managing subscriptions. This service integrates with ERP systems and provides bulk email functionalities.
+A lightweight **Notification Service API** built with **FastAPI** for sending email notifications, managing subscriptions, and integrating with ERP systems. Supports bulk email functionalities and asynchronous operations for performance.
 
 ---
 
-## Table of Contents
-- [Features](#features)
-- [Tech Stack](#tech-stack)
-- [Installation](#installation)
-- [Configuration](#configuration)
-- [Usage](#usage)
-- [API Endpoints](#api-endpoints)
-- [Middleware](#middleware)
-- [ERP Integration](#erp-integration)
-- [Utilities](#utilities)
+## 📌 Table of Contents
 
-
----
-
-## Features
-
-- Send email notifications to individual or multiple recipients
-- Subscribe emails to the notification list
-- Integration with **ERP** systems (e.g., Odoo)
-- Middleware support for:
-  - CORS
-  - GZip compression
-  - Trusted hosts
-  - SQLAlchemy async database connections
-  - IP blocking
-- OTP generation utility
-- Configurable via `.conf` file or environment variables
+- [Features](#features)  
+- [Tech Stack](#tech-stack)  
+- [Installation](#installation)  
+- [Configuration](#configuration)  
+- [Usage](#usage)  
+- [API Endpoints](#api-endpoints)  
+- [Middleware](#middleware)  
+- [ERP Integration](#erp-integration)  
+- [Utilities](#utilities)  
 
 ---
 
-## Tech Stack
+## 🚀 Features
 
-- **Python 3.11+**
-- **FastAPI** – Web framework
-- **SQLAlchemy (async)** – Database ORM
-- **SQLite** – Default database
-- **HTTPX** – Async HTTP requests for ERP integration
-- **Pydantic / Pydantic Settings** – Configuration & validation
-- **aiosmtplib** – Async email sending
-- **Middleware**:
-  - CORS
-  - GZip
-  - HTTPS redirect
-  - Trusted host
-- **EmailLib** (custom utility for sending emails)
-- **Utilities**: OTP generator, IP blocking, random number generation
+- Send **email notifications** to individual or multiple recipients  
+- Subscribe emails to a **notification list**  
+- Integrates with **ERP systems** (e.g., Odoo)  
+- **Middleware support** for:  
+  - CORS  
+  - GZip compression  
+  - Trusted hosts  
+  - SQLAlchemy async database connections  
+  - IP blocking  
+- **OTP generation** utility  
+- Configurable via **.conf** file or environment variables  
 
 ---
 
-## Installation
+## 🛠 Tech Stack
+
+- **Python 3.11+**  
+- **FastAPI** – Web framework  
+- **SQLAlchemy (async)** – Database ORM  
+- **SQLite** – Default database  
+- **HTTPX** – Async HTTP client for ERP integration  
+- **Pydantic / Pydantic Settings** – Configuration & validation  
+- **aiosmtplib** – Async email sending  
+
+**Middleware & Utilities:**
+
+- CORS, GZip, HTTPS redirect, Trusted host  
+- EmailLib (custom email utility)  
+- OTP generator, IP blocking, random number generator  
+
+---
+
+## ⚙️ Installation
 
 1. Clone the repository:
 
 ```bash
 git clone <REPO_URL>
 cd notification-service
+Create and activate a virtual environment:
 
+bash
+Copy code
+python -m venv venv
+source venv/bin/activate   # Linux/macOS
+venv\Scripts\activate      # Windows
+Install dependencies:
 
-Configuration
+bash
+Copy code
+pip install -r requirements.txt
+🔧 Configuration
+All settings are stored in .conf or src/core/config.py using Pydantic Settings.
 
-All configuration settings are stored in .conf or src/core/config.py using Pydantic Settings. Example:
+Example configuration:
 
-debug: bool
-is_demo: bool = True
-app_name: str
-app_description: str
-app_origins: list[str]
-app_root: str
-port: int
-app_version: str
-secret_key: str
-db_name: str
-sqlalchemy_database_uri: str
+ini
+Copy code
+# App settings
+debug = True
+is_demo = True
+app_name = "Iyconsoft Notification API"
+app_root = "/notifications"
+app_version = "0.0.1"
+app_origins = ["*"]
+port = 8000
+secret_key = "your_secret_key"
 
-mail_server: str
-mail_port: int
-mail_sender: int
-mail_username: str
-mail_password: str
-mail_from_name: str
-mail_tls: bool
-mail_ssl: bool
-use_credentials: bool
-validate_certs: bool
+# Database
+db_name = "notifications.db"
+sqlalchemy_database_uri = "sqlite+aiosqlite:///notifications.db"
 
-odoo_url: str
-odoo_headers: dict
-odoo_payload: dict
+# Email
+mail_server = "smtp.example.com"
+mail_port = 587
+mail_sender = "notifications@example.com"
+mail_username = "username"
+mail_password = "password"
+mail_from_name = "Iyconsoft Notifications"
+mail_tls = True
+mail_ssl = False
+use_credentials = True
+validate_certs = True
 
+# ERP
+odoo_url = "https://backoffice.kreador.io/jsonrpc"
+odoo_headers = {"Content-Type": "application/json"}
+odoo_payload = { "jsonrpc": "2.0", "method": "call", "params": { ... } }
+Environment variables are loaded automatically using python-dotenv.
 
-Environment variables are loaded from .conf using python-dotenv.
+⚡ Usage
+Start the FastAPI server:
 
-Usage
-
-Run the FastAPI server:
-
+bash
+Copy code
 uvicorn src.main:app --host 0.0.0.0 --port 8000 --reload
-
-
-Visit the interactive API documentation:
-
-http://localhost:8000/docs
-
-API Endpoints
-Email Endpoints
-
-Send Email
-POST /emails/send
-
-Subscribe Email
-POST /emails/subscribe
-
-Bulk Email Notification
-POST /emails/bulk
-
-Request/response schemas use the IMail Pydantic model:
-
-{
-  "email": "user@example.com",
-  "subject": "Notification",
-  "message": "Hello! This is a test notification.",
-  "sender": "Iyconsoft Notifications"
-}
