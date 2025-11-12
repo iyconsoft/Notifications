@@ -17,7 +17,7 @@ A lightweight notification service API built with **FastAPI** for sending email 
 - [Middleware](#middleware)
 - [ERP Integration](#erp-integration)
 - [Utilities](#utilities)
-- [License](#license)
+
 
 ---
 
