@@ -91,10 +91,6 @@ app_origins = ["*"]
 port = 8000
 secret_key = "your_secret_key"
 
-# Database
-db_name = "notifications.db"
-sqlalchemy_database_uri = "sqlite+aiosqlite:///notifications.db"
-
 # Email
 mail_server = "smtp.example.com"
 mail_port = 587
@@ -108,7 +104,7 @@ use_credentials = True
 validate_certs = True
 
 # ERP
-odoo_url = "https://backoffice.kreador.io/jsonrpc"
+odoo_url = "https://devapi.iyconsoft.com/api/erp/"
 odoo_headers = {"Content-Type": "application/json"}
 odoo_payload = { "jsonrpc": "2.0", "method": "call", "params": { ... } }
 Environment variables are loaded automatically using python-dotenv.
