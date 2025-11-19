@@ -118,7 +118,7 @@ jobs:
       # Build and tag Docker images
       - name: Build and tag Docker images
         run: |
-          docker build --no-cache -t iyconsoft/iyconsoft_repo:iyconsoftNotifications ./
+          docker build --target dev --no-cache -t iyconsoft/iyconsoft_repo:iyconsoftNotifications ./
 
       # Push images to Docker Hub
       - name: Push images to Docker Hub
