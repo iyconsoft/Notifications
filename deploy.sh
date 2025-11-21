@@ -5,7 +5,7 @@ set -e  # Exit on error
 
 # Configuration
 APP_MODULE="src.main:app"
-PORT=8000
+PORT=8001
 WORKERS=1
 MAX_REQUESTS=10000
 GRACEFUL_TIMEOUT=60

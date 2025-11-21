@@ -10,7 +10,7 @@ load_dotenv(f"{baseDir}/.conf")
 
 # Settings class using Pydantic
 class AppSettings(BaseSettings):
-    debug: bool
+    debug: bool = True
     is_demo: bool = True
     app_name: str
     app_description: str
@@ -22,19 +22,22 @@ class AppSettings(BaseSettings):
     db_name: str
     sqlalchemy_database_uri: str
 
+    rabbitmq_url: str = "amqp://admin:admin123@devserver.iyconsoft.com:5672"
+    queue_name: str = "notification_queue"
+
     mail_server: str
     mail_port: int
-    mail_sender: int
+    mail_sender: str
     mail_username: str
     mail_password: str
     mail_from_name: str
-    mail_tls: bool
-    mail_ssl: bool
-    use_credentials: bool
-    validate_certs: bool
+    mail_tls: bool = True
+    mail_ssl: bool = False
+    use_credentials: bool = True
+    validate_certs: bool = True
 
     odoo_url: str = "https://backoffice.kreador.io/jsonrpc"
-    odoo_headers = {
+    odoo_headers: dict = {
         'Content-Type': 'application/json'
     }
     odoo_payload: dict = {

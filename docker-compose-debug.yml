@@ -1,0 +1,34 @@
+services:
+  iyconsoftnotifications:
+    build:
+      context: .
+      target: dev
+      dockerfile: Dockerfile
+    container_name: iyconsoftnotifications
+    restart: unless-stopped
+    command: [
+      "uvicorn", 
+      "src.main:app", 
+      "--host", "0.0.0.0", 
+      "--port", "8001", 
+      "--reload"
+    ]
+    expose:
+      - 8001
+    networks:
+      - container-network
+    mem_limit: 512m
+    cpus: 0.5
+
+networks:
+  container-network:
+    external: true
+
+    # ipam:
+    #   config:
+    #     - subnet: 172.20.0.0/16
+
+
+
+    
+

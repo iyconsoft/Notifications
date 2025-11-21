@@ -5,13 +5,13 @@ WORKDIR /usr/src/iyconsoftNotifications
 
 # Install build dependencies
 RUN apk add --no-cache \
-    build-base \
-    libffi-dev \
-    openssl-dev \
-    gcc \
-    g++ \
-    musl-dev \
-    linux-headers \
+    # build-base \
+    # libffi-dev \
+    # openssl-dev \
+    # gcc \
+    # g++ \
+    # musl-dev \
+    # linux-headers \
     python3-dev
 
 # Create virtual environment

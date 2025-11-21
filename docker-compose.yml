@@ -1,0 +1,137 @@
+services:
+  # === NGINX + ModSecurity Load Balancer ===
+  nginx:
+    labels:
+      org.label-schema.group: "iyconsoft"
+      com.centurylinklabs.watchtower.enable: "true"
+    image: kaoschuks/aidefinance_demo:iyconsoftdevservernginx
+    container_name: nginx
+    restart: unless-stopped
+    mem_limit: 100m
+    memswap_limit: 512m
+    cpus: 0.5
+    ports:
+      - "443:443"
+    depends_on:
+      - watchtower
+      - apigateway
+    networks:
+      - iyconsoft-net
+
+  # === API Gateway ===
+  apigateway:
+    container_name: apigateway
+    image: kaoschuks/aidefinance_demo:iyconsoftdevserverkong
+    labels:
+      org.label-schema.group: "iyconsoft"
+      com.centurylinklabs.watchtower.enable: "true"
+    expose:
+      - 8000  # Proxy
+      - 8001  # Admin API
+    restart: unless-stopped
+    mem_limit: 4G
+    cpus: 2.0
+    networks:
+      - iyconsoft-net
+    healthcheck:
+      test: ["CMD", "kong", "health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  node_exporter:
+    image: prom/node-exporter:latest
+    container_name: node_exporter
+    restart: unless-stopped
+    mem_limit: 64m
+    memswap_limit: 100m
+    cpus: 0.2
+    expose:
+      - 9100
+    networks:
+      - iyconsoft-net
+
+  # Montoring
+  prometheus:
+    labels:
+      org.label-schema.group: "iyconsoft"
+      com.centurylinklabs.watchtower.enable: "true"
+    image: kaoschuks/aidefinance_demo:iyconsoftdevserverprometheus
+    container_name: prometheus
+    restart: unless-stopped
+    ports:
+      - 9090:9090
+    networks:
+      - iyconsoft-net
+    mem_limit: 1g
+    memswap_limit: 1g
+    cpus: 1.0
+    command:
+      - "--config.file=/etc/prometheus/prometheus.yml"
+      - "--storage.tsdb.retention.time=15d"
+      - "--storage.tsdb.retention.size=8GB"
+      - "--storage.tsdb.path=/prometheus"
+      - "--web.console.libraries=/etc/prometheus/console_libraries"
+      - "--web.console.templates=/etc/prometheus/consoles"
+      - "--storage.tsdb.max-block-duration=2h"
+      - "--storage.tsdb.min-block-duration=2h"
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+  watchtower:
+    image: containrrr/watchtower:latest
+    container_name: watchtower
+    restart: unless-stopped
+    labels:
+      org.label-schema.group: "iyconsoft"
+      com.centurylinklabs.watchtower.enable: "false"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    expose:
+      - 8080
+    networks:
+      - iyconsoft-net
+    mem_limit: 96m
+    memswap_limit: 204m
+    cpus: 0.2
+
+  cadvisor:
+    image: gcr.io/cadvisor/cadvisor:v0.51.0
+    container_name: cadvisor
+    labels:
+      org.label-schema.group: "monitoring"
+    expose:
+      - 8080
+    restart: unless-stopped
+    #priviledged: true
+    userns_mode: "host"
+    user: root
+    pid: host
+    volumes:
+      - /:/rootfs:ro
+      - /var/run:/var/run:ro
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - /sys:/sys:ro
+      - /var/lib/docker/:/var/lib/docker:ro
+      - /dev/disk/:/dev/disk:ro
+      - /sys/fs/cgroup:/sys/fs/cgroup:ro
+    networks:
+      - aidefinance-network
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+    mem_limit: 96m
+    memswap_limit: 204m
+    cpus: 0.2
+
+networks:
+  iyconsoft-net:
+    driver: bridge
+    # ipam:
+    #   config:
+    #     - subnet: 172.20.0.0/16
