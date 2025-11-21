@@ -6,15 +6,19 @@ services:
       dockerfile: Dockerfile
     container_name: iyconsoftnotifications
     restart: unless-stopped
-    command: [
-      "uvicorn", 
-      "src.main:app", 
-      "--host", "0.0.0.0", 
-      "--port", "8001", 
-      "--reload"
-    ]
     expose:
-      - 8001
+      - 8000
+    # command: [
+    #   "uvicorn", 
+    #   "src.main:app", 
+    #   "--host", "0.0.0.0", 
+    #   "--port", "8001", 
+    #   "--reload"
+    # ]
+    # volumes:
+    #   - ./:/usr/src/iyconsoftNotifications
+    # ports:
+    #   - 8001:8001
     networks:
       - container-network
     mem_limit: 512m
@@ -22,7 +26,8 @@ services:
 
 networks:
   container-network:
-    external: true
+    # external: true
+    driver: bridge
 
     # ipam:
     #   config:

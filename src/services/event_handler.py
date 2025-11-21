@@ -4,21 +4,20 @@ from src.core.config import (settings, logging)
 
 
 class EventHandler_Service:
+    queue_name: str = settings.queue_name
+    retry_queue: str = "webhook_retry_queue"
+    channel = None
 
-    async def __init__(self, app, connection):
+    async def setup(self, app):
         try:
-            channel = await connection.channel()
-            await channel.set_qos(prefetch_count=10)
-            queue = await channel.declare_queue(settings.queue_name, durable=True)
+            self.channel = await app.state.rabbit_connection.channel()
+            await self.channel.set_qos(prefetch_count=10)
+            queue = await self.channel.declare_queue(settings.queue_name, durable=True)
 
             # Store in app.state for access later
-            app.state.rabbit_connection = connection
-            app.state.rabbit_channel = channel
+            app.state.rabbit_channel = self.channel
             app.state.rabbit_queue = queue
 
-            self.queue_name = settings.queue_name
-            self.retry_queue = "webhook_retry_queue"
-            self.channel = channel
 
             app.state.worker_task = await asyncio.create_task(
                 self.consume(queue)
@@ -62,3 +61,4 @@ class EventHandler_Service:
                 await self.process_message(message)
 
 
+worker: EventHandler_Service = EventHandler_Service()

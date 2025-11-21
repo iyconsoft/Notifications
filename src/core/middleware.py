@@ -2,12 +2,15 @@ import os, ssl
 from fastapi import Request, FastAPI
 from prometheus_fastapi_instrumentator import Instrumentator
 
-from src.utils import *
-from .config import ( settings )
+from src.core.config import ( settings )
 from src.core.dbconfig import (
     SQLALCHEMY_DATABASE_URL,
     engine_args,
 )
+from src.utils.helpers import (
+    RateLimiter, ExceptionMiddleware
+)
+from src.utils.libs import *
 
 middlewares = [
     Middleware(ExceptionMiddleware), 
@@ -31,12 +34,12 @@ def add_app_middlewares(app: FastAPI):
     if hasattr(ssl, "_create_unverified_context"):
         ssl._create_default_https_context = ssl._create_unverified_context
 
-    if settings.debug is True:
-        sentry_init(settings.debug)
+    # if settings.debug is False:
+    #     sentry_init(settings.debug, settings.sentry_dns)
         
-    @app.middleware("http")
-    async def ip_block(request: Request, call_next):
-            return await block_ips(request, call_next)
+    # @app.middleware("http")
+    # async def ip_block(request: Request, call_next):
+    #     return await block_ips(request, call_next)
 
 
 async def add_exception_middleware(app: FastAPI):

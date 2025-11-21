@@ -10,7 +10,7 @@ load_dotenv(f"{baseDir}/.conf")
 
 # Settings class using Pydantic
 class AppSettings(BaseSettings):
-    debug: bool = True
+    debug: bool
     is_demo: bool = True
     app_name: str
     app_description: str
@@ -22,8 +22,13 @@ class AppSettings(BaseSettings):
     db_name: str
     sqlalchemy_database_uri: str
 
-    rabbitmq_url: str = "amqp://iyconsoft:Iyconsoft2025#@devserver.iyconsoft.com:5672"
+    rabbitmq_url: str = "amqp://iyconsoft:Iyconsoft2025#@rabbitmq:5672"
     queue_name: str = "notification_queue"
+
+    keycloak_realm: str
+    keycloak_server_url: str
+    keycloak_client_id: str
+    keycloak_client_secret: str
 
     mail_server: str
     mail_port: int
@@ -35,6 +40,8 @@ class AppSettings(BaseSettings):
     mail_ssl: bool = False
     use_credentials: bool = True
     validate_certs: bool = True
+
+    sentry_dns: str = "https://952e53885dce39d9c6dc481ddbad407f@o4504234422632448.ingest.us.sentry.io/4507927449698304"
 
     odoo_url: str = "https://backoffice.kreador.io/jsonrpc"
     odoo_headers: dict = {

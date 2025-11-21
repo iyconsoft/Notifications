@@ -3,8 +3,16 @@ from collections import OrderedDict
 from starlette.types import Message
 from fastapi import FastAPI, Request, Response
 from starlette.middleware.base import BaseHTTPMiddleware, RequestResponseEndpoint
-import gzip          
+import gzip      
 
+
+from starlette.middleware import Middleware
+from fastapi.middleware.cors import CORSMiddleware
+from fastapi.middleware.gzip import GZipMiddleware
+from fastapi.middleware.httpsredirect import HTTPSRedirectMiddleware
+from fastapi_async_sqlalchemy import SQLAlchemyMiddleware
+from fastapi.middleware.trustedhost import TrustedHostMiddleware    
+from sentry_sdk.integrations.asgi import SentryAsgiMiddleware
 
 CSP = {
     "default-src": "'self'",

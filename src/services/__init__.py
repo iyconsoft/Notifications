@@ -1,2 +1,2 @@
 from .erp import *
-from .event_handler import EventHandler_Service
+from .event_handler import worker
