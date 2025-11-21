@@ -31,3 +31,6 @@ typing_extensions==4.15.0
 uvicorn==0.37.0
 wsproto==1.2.0
 httpx
+prometheus-fastapi-instrumentator
+aioredis
+sentry-sdk
