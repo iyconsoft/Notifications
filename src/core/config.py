@@ -22,7 +22,7 @@ class AppSettings(BaseSettings):
     db_name: str
     sqlalchemy_database_uri: str
 
-    rabbitmq_url: str = "amqp://admin:admin123@devserver.iyconsoft.com:5672"
+    rabbitmq_url: str = "amqp://iyconsoft:Iyconsoft2025#@devserver.iyconsoft.com:5672"
     queue_name: str = "notification_queue"
 
     mail_server: str
