@@ -22,8 +22,8 @@ class AppSettings(BaseSettings):
     db_name: str
     sqlalchemy_database_uri: str
 
-    rabbitmq_url: str = "amqp://iyconsoft:Iyconsoft2025#@rabbitmq:5672"
-    queue_name: str = "notification_queue"
+    rabbitmq_url: str
+    queue_name: str
 
     keycloak_realm: str
     keycloak_server_url: str

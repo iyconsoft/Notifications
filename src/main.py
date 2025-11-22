@@ -9,15 +9,16 @@ from src.core import (
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     try: 
-        # _, connection, _ = await asyncio.gather(
-        await asyncio.gather(
+        _, connection, _ = await asyncio.gather(
+        # await asyncio.gather(
             init_db(app),
-            # connect_robust(settings.rabbitmq_url),
+            connect_robust(settings.rabbitmq_url),
             add_exception_middleware(app),
             return_exceptions=True
         )
-        # app.state.rabbit_connection = connection
-        # await worker.setup(app)
+        if connection is not None:
+            app.state.rabbit_connection = connection
+            await worker.setup(app)
 
     except Exception as ex:
         logging.error(f"Lifespan startup failed: {ex}")
