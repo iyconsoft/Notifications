@@ -22,7 +22,10 @@ class AppSettings(BaseSettings):
     db_name: str
     sqlalchemy_database_uri: str
 
-    rabbitmq_url: str
+    rabbitmq_host: str
+    rabbitmq_username: str
+    rabbitmq_password: str
+    rabbitmq_port: int
     queue_name: str
 
     keycloak_realm: str

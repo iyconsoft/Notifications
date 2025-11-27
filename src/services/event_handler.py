@@ -19,10 +19,10 @@ class EventHandler_Service:
     async def connect_rabbitmq(self, app):
         try:
             self.connection = await connect_robust(
-                host="84.247.182.227",
-                port=5672, 
-                login="iyconsoft",
-                password="Iyconsoft2025#",
+                host=settings.rabbitmq_host,
+                port=settings.rabbitmq_port, 
+                login=settings.rabbitmq_username,
+                password=settings.rabbitmq_password,
                 virtualhost="",
                 timeout=30
             )
