@@ -6,7 +6,7 @@ from src.schemas import (
 from src.repositories import (EmailRepository)
 from src.services import (eventrouter_handler)
 from src.utils.helpers import (build_success_response, build_error_response, BaseError)
-from src.core import (logging)
+from src.core import (logging, settings)
 
 router = APIRouter(tags=["Email Notifications"])
 email_repo = EmailRepository()
@@ -71,5 +71,5 @@ async def send_bulk_emails(request: EmailBulkRequest, background_tasks: Backgrou
         )
 
 
-eventrouter_handler.register_handler('send_email', send_single_email)
-eventrouter_handler.register_handler('send_bulk_email', send_bulk_emails)
+eventrouter_handler.register_handler('send_email', send_single_email, settings.queue_name)
+eventrouter_handler.register_handler('send_bulk_email', send_bulk_emails, settings.queue_name)

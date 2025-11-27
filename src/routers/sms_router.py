@@ -6,7 +6,7 @@ from src.schemas import (
 from src.repositories import (SMSRepository)
 from src.services import (eventrouter_handler)
 from src.utils.helpers import (build_success_response, build_error_response, BaseError)
-from src.core import (logging)
+from src.core import (logging, settings)
 
 router = APIRouter(tags=["Sms Notifications"])
 sms_repo = SMSRepository()
@@ -67,5 +67,5 @@ async def send_bulk_sms(request: SMSBulkRequest, background_tasks: BackgroundTas
         )
 
 
-eventrouter_handler.register_handler('send_sms', send_single_sms)
-eventrouter_handler.register_handler('send_bulk_sms', send_bulk_sms)
+eventrouter_handler.register_handler('send_sms', send_single_sms, settings.queue_name)
+eventrouter_handler.register_handler('send_bulk_sms', send_bulk_sms, settings.queue_name)
