@@ -1,1 +1,2 @@
-from .email_repo import EmailRepository
+from .email_repository import EmailRepository
+from .sms_repository import SMSRepository

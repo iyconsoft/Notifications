@@ -4,7 +4,7 @@ from src.utils import build_success_response, build_error_response, check_db, ch
 from src.core.config import logging
 
 
-appRouter = APIRouter()
+appRouter = APIRouter(tags=["Iyconsoft Notifications"])
 
 @appRouter.get("/")
 async def home():
@@ -20,7 +20,10 @@ async def health_check(request: Request):
         "status": "healthy",
         "services": {
             "notification_db": status.HTTP_200_OK if await check_db(request.app.state.dbengine) else status.HTTP_503_SERVICE_UNAVAILABLE,
-            "notification_worker": status.HTTP_200_OK if await check_app() else status.HTTP_503_SERVICE_UNAVAILABLE,
+            "event_handler": {
+                # "rabbitmq_connected": worker.connection is not None,
+                # "is_consuming": worker.is_consuming
+            }
         }
     }
     

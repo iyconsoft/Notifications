@@ -4,16 +4,20 @@ from colorlog import ColoredFormatter
 
 # Logging setup
 formatter = ColoredFormatter(
-    "%(log_color)s%(asctime)s - %(name)s - %(levelname)s - %(message)s",
+    "%(log_color)s%(message)s",
     datefmt="%Y-%m-%d %H:%M:%S",
     log_colors={
         "INFO": "green",
         "WARNING": "yellow",
-        "DEBUG": "white",
+        "DEBUG": "cyan",
         "ERROR": "red",
+        "CRITICAL": "red",
+        "RESET": "purple"
     },
 )
 
+logging.getLogger("aio_pika").setLevel(logging.ERROR)
+logging.getLogger("aiormq").setLevel(logging.ERROR)
 logging.getLogger("aiosqlite").setLevel(logging.ERROR)
 logging.getLogger("aiomysql").setLevel(logging.ERROR)
 logging.getLogger("sqlalchemy").setLevel(logging.ERROR)
