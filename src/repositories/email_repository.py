@@ -128,7 +128,7 @@ class EmailRepository:
             successful = sum(1 for r in results if r.get("status") == "sent")
             failed = len(results) - successful
             
-            logging.info(f"Sending bulk emails to {len(recipients)} recipients via {provider} has successfully sent {len(successful)} email of {len(results)}")
+            logging.info(f"Sending bulk emails to {len(recipients)} recipients via {provider} has successfully sent {successful} email of {len(results)}")
             return {
                 "success": failed == 0,
                 "data": {

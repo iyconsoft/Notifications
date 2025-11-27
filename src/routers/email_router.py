@@ -59,7 +59,7 @@ async def send_bulk_emails(request: EmailBulkRequest, background_tasks: Backgrou
         )    
         
         return build_success_response(
-            message="Bulk emails sent successfully",
+            message="Bulk emails operation in progress",
             status=status.HTTP_200_OK
         )
     except Exception as e:
