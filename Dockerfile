@@ -22,7 +22,7 @@ ENV PATH="/opt/venv/bin:$PATH"
 COPY requirements.txt .
 RUN pip install --no-cache-dir --upgrade pip setuptools uvloop && \
     pip install --no-cache-dir -r requirements.txt && \
-    pip install --no-cache-dir hypercorn
+    pip install --no-cache-dir hypercorn pydantic[email]
 
 # Runtime stage
 FROM python:3.12-alpine3.20 as dev
