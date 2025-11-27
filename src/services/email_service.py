@@ -76,7 +76,7 @@ class SMTPEmailProvider(BaseEmailProvider):
     
     async def send_bulk(self, recipients: list, subject: str, body: str, html_body: str = None) -> list:
         """Send bulk emails via SMTP provider"""
-        sem = asyncio.Semaphore(int(os.getenv("EMAIL_CONCURRENCY", "10")))
+        sem = asyncio.Semaphore(50)
         async def _send_with_sem(recipient: str):
             async with sem:
                 return await self.send(recipient, subject, body, html_body)
