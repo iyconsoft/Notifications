@@ -50,7 +50,7 @@ async def webhook_email(request: Request, background_tasks: BackgroundTasks, x_g
     try:
         if x_grafana_token != GRAFANA_WEBHOOK_SECRET:
             return build_error_response(
-                message="Invalid Grafana webhook token"",
+                message="Invalid Grafana webhook token",
                 status=status.HTTP_401_UNAUTHORIZED
             )
 
