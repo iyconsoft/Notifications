@@ -20,7 +20,7 @@ async def health_check(request: Request):
         "status": "healthy",
         "services": {
             "rabbitmq": await check_rabbitmq(request.app.state.rabbit_connection),
-            "db": await check_db(db.session),
+            # "db": await check_db(db.session),
             "erp": await check_url_health("https://backoffice.kreador.io/jsonrpc"),
             "firebase": await check_url_health("https://aide-financial.firebaseio.com"),
         }

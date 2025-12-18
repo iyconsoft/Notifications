@@ -46,6 +46,7 @@ class AppSettings(BaseSettings):
 
     grafana_webhook_secret: str
     grafana_email: str
+    grafana_emails: list[str]
 
     sentry_dns: str = "https://952e53885dce39d9c6dc481ddbad407f@o4504234422632448.ingest.us.sentry.io/4507927449698304"
 

@@ -1,7 +1,7 @@
 from datetime import datetime
 from typing import List, Dict, Any, Optional
 from src.services import (EmailServiceFactory)
-from src.core import (logging)
+from src.core import (logging,settings)
 from src.utils.helpers.errors import BadRequestError, ServiceUnavailableError
 
 
@@ -16,7 +16,7 @@ class EmailRepository:
             for alert in alerts:
                 response.append(
                     await self.send_bulk_emails(
-                        recipients=["dev@iyconsoft.com", "ayomidebanjo02@gmail.com", "oprs@iyconsoft.com"],
+                        recipients=settings.grafana_emails,
                         subject=f"Grafana Alert: {alert['labels'].get('alertname')}",
                         body=alert["annotations"].get("summary", "No summary provided"),
                         provider="smtp"
