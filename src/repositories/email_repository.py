@@ -9,6 +9,23 @@ class EmailRepository:
     def __init__(self):
         self.factory = EmailServiceFactory()
     
+    async def grafana_alert(self, info):
+        try:          
+            alerts = data.get("alerts", [])
+            response = []
+            for alert in alerts:
+                response.append(
+                    await self.send_single_email(
+                        to_email="dev@iyconsoft.com",
+                        subject=f"Grafana Alert: {alert['labels'].get('alertname')}",
+                        body=alert["annotations"].get("summary", "No summary provided"),
+                        provider="smtp"
+                    )
+                )
+            return True
+        except Exception as e:
+            raise e
+    
     async def subscribe_email(info: dict):
         try:            
             return {

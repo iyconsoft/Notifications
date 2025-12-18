@@ -39,6 +39,37 @@ async def send_single_email(request: EmailSingleRequest, background_tasks: Backg
             status=status.HTTP_500_INTERNAL_SERVER_ERROR,
             data={"error": str(e)}
         )
+            
+@router.post(
+    "/email/webhook",
+    status_code=status.HTTP_200_OK,
+    summary="Webhook Email Alert",
+    description="Send email alerts via webhook (e.g., from Grafana)"
+)
+async def webhook_email(request: Request, background_tasks: BackgroundTasks, x_grafana_token: Optional[str] = Header(None)):
+    try:
+        if x_grafana_token != GRAFANA_WEBHOOK_SECRET:
+            return build_error_response(
+                message="Invalid Grafana webhook token"",
+                status=status.HTTP_401_UNAUTHORIZED
+            )
+
+        payload = await request.json()
+        background_tasks.add_task(
+            email_repo.grafana_alert, 
+            info=payload
+        )    
+        return build_success_response(
+            message="Webhook email operation in progress",
+            status=status.HTTP_200_OK
+        )
+    except Exception as e:
+        logging.error(f"Unexpected error in email send: {str(e)}")
+        return build_error_response(
+            message="An unexpected error occurred",
+            status=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            data={"error": str(e)}
+        )
 
 
 @router.post(

@@ -44,6 +44,9 @@ class AppSettings(BaseSettings):
     use_credentials: bool = True
     validate_certs: bool = True
 
+    grafana_webhook_secret: str
+    grafana_email: str
+
     sentry_dns: str = "https://952e53885dce39d9c6dc481ddbad407f@o4504234422632448.ingest.us.sentry.io/4507927449698304"
 
     odoo_url: str = "https://backoffice.kreador.io/jsonrpc"
