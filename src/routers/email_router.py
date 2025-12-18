@@ -1,4 +1,5 @@
-from fastapi import APIRouter, status, BackgroundTasks, Request, Depends, Header, Optional
+from fastapi import APIRouter, status, BackgroundTasks, Request, Depends, Header
+from typing import Optional
 from src.schemas import (
     EmailSingleRequest, EmailBulkRequest, EmailResponse,
     BulkNotificationResponse
@@ -48,7 +49,7 @@ async def send_single_email(request: EmailSingleRequest, background_tasks: Backg
 )
 async def webhook_email(request: Request, background_tasks: BackgroundTasks, x_grafana_token: Optional[str] = Header(None)):
     try:
-        if x_grafana_token != GRAFANA_WEBHOOK_SECRET:
+        if x_grafana_token != settings.grafana_webhook_token:
             return build_error_response(
                 message="Invalid Grafana webhook token",
                 status=status.HTTP_401_UNAUTHORIZED
