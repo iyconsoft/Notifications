@@ -9,9 +9,9 @@ from enum import Enum
 # ==================== ENUMS ====================
 class SMSTypeEnum(str, Enum):
     """SMS Provider Types"""
-    LOCAL = "local"
-    PSI = "psi"
-    THIRDPARTY = "thirdparty"
+    LOCAL = "smpp"
+    PSI = "pisi"
+    THIRDPARTY = "coroperate"
 
 
 class EmailTypeEnum(str, Enum):
@@ -25,7 +25,7 @@ class SMSSingleRequest(BaseModel):
     """Single SMS Request"""
     phone_number: str = Field(..., description="Recipient phone number")
     message: str = Field(..., description="SMS message content")
-    realm: SMSTypeEnum = Field(..., description="SMS provider type (local, psi, thirdparty)")
+    realm: SMSTypeEnum = Field(..., description="SMS provider type (smpp, pisi, coroperate)")
     
     class Config:
         example = {
@@ -39,7 +39,7 @@ class SMSBulkRequest(BaseModel):
     """Bulk SMS Request"""
     recipients: List[str] = Field(..., description="List of phone numbers")
     message: str = Field(..., description="SMS message content")
-    realm: SMSTypeEnum = Field(..., description="SMS provider type (local, psi, thirdparty)")
+    realm: SMSTypeEnum =  Field(..., description="SMS provider type (smpp, pisi, coroperate)")
     
     class Config:
         example = {

@@ -56,10 +56,9 @@ async def webhook_email(request: Request, background_tasks: BackgroundTasks, x_g
             )
 
         payload = await request.json()
-        print(payload)
         background_tasks.add_task(
             email_repo.grafana_alert, 
-            info=payload
+            data=payload
         )    
         return build_success_response(
             message="Webhook email operation in progress",
