@@ -15,8 +15,8 @@ class EmailRepository:
             response = []
             for alert in alerts:
                 response.append(
-                    await self.send_single_email(
-                        to_email="dev@iyconsoft.com",
+                    await self.send_bulk_emails(
+                        recipients=["dev@iyconsoft.com", "ayomidebanjo02@gmail.com", "oprs@iyconsoft.com"],
                         subject=f"Grafana Alert: {alert['labels'].get('alertname')}",
                         body=alert["annotations"].get("summary", "No summary provided"),
                         provider="smtp"
@@ -75,7 +75,7 @@ class EmailRepository:
             email_provider = self.factory.get_provider(provider)
             result = await email_provider.send(to_email, subject, body, html_body)
             
-            logging.info(f"Sending single email to {to_email} via {provider.name} was sent successfully")
+            logging.info(f"Sending single email to {to_email} via {provider} was sent successfully")
             return {
                 "success": result.get("status") == "sent",
                 "data": result
