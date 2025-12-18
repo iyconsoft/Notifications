@@ -25,7 +25,7 @@ class LocalSMSProvider(BaseSMSProvider):
     """Local SMS Provider Implementation"""
     
     def __init__(self):
-        self.provider_name = "LOCAL"
+        self.provider_name = "SMPP"
     
     async def send(self, phone_number: str, message: str) -> dict:
         """Send SMS via local provider"""
@@ -66,7 +66,7 @@ class PSISMSProvider(BaseSMSProvider):
     """PSI SMS Provider Implementation"""
     
     def __init__(self):
-        self.provider_name = "PSI"
+        self.provider_name = "PISI"
     
     async def send(self, phone_number: str, message: str) -> dict:
         """Send SMS via PSI provider"""
@@ -107,7 +107,7 @@ class ThirdpartySMSProvider(BaseSMSProvider):
     """Third-party SMS Provider Implementation (e.g., Twilio, AWS SNS)"""
     
     def __init__(self):
-        self.provider_name = "THIRDPARTY"
+        self.provider_name = "CORPORATE"
     
     async def send(self, phone_number: str, message: str) -> dict:
         """Send SMS via third-party provider"""
@@ -148,9 +148,9 @@ class SMSServiceFactory:
     """Factory class to get the appropriate SMS provider"""
     
     _providers = {
-        "local": LocalSMSProvider,
-        "psi": PSISMSProvider,
-        "thirdparty": ThirdpartySMSProvider
+        "smpp": LocalSMSProvider,
+        "pisi": PSISMSProvider,
+        "coroperate": ThirdpartySMSProvider
     }
     
     @classmethod
