@@ -1,4 +1,4 @@
-from fastapi import APIRouter, status, BackgroundTasks, Request, Depends, Header
+from fastapi import APIRouter, status, BackgroundTasks, Request, Depends, Header, Optional
 from src.schemas import (
     EmailSingleRequest, EmailBulkRequest, EmailResponse,
     BulkNotificationResponse
