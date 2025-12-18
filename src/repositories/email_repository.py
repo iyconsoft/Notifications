@@ -9,7 +9,7 @@ class EmailRepository:
     def __init__(self):
         self.factory = EmailServiceFactory()
     
-    async def grafana_alert(self, info):
+    async def grafana_alert(self, data):
         try:          
             alerts = data.get("alerts", [])
             response = []

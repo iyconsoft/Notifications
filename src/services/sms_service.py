@@ -3,9 +3,14 @@ SMS Service - Core implementation for different SMS providers
 """
 from abc import ABC, abstractmethod
 from datetime import datetime
-import uuid
+import uuid, asyncio, httpx, aiosmtplib
 from src.utils.libs.logging import logging
 
+async def send_sms(url, payload, headers, method:str = "POST"):
+    async with httpx.AsyncClient(timeout=30) as client:
+        resp = await client.post(url, json=payload, headers=headers)
+        resp.raise_for_status()
+        return resp.json() if resp.content else {}
 
 class BaseSMSProvider(ABC):
     """Abstract base class for SMS providers"""
@@ -33,9 +38,10 @@ class LocalSMSProvider(BaseSMSProvider):
             message_id = str(uuid.uuid4())
             logging.info(f"Sending SMS via LOCAL provider to {phone_number}")
             
-            # TODO: Implement actual local SMS provider integration
-            # This is where you would call your local SMS API
-            
+            url = "https://smsgateway.iyconsoft.com/"
+            headers = {"Content-Type": "application/json"}
+            resp = await send_sms(url, {}, headers, "GET")
+            logging.info(f"Sending SMS via LOCAL provider response {resp}")
             return {
                 "phone_number": phone_number,
                 "message_id": message_id,
@@ -74,9 +80,21 @@ class PSISMSProvider(BaseSMSProvider):
             message_id = str(uuid.uuid4())
             logging.info(f"Sending SMS via PSI provider to {phone_number}")
             
-            # TODO: Implement actual PSI SMS provider integration
-            # This is where you would call PSI SMS API with their credentials
-            
+            url = "https://api.pisimobile.com/api/SendSMS"
+            headers = {"Content-Type": "application/json"}
+            payload = {
+                "MSISDN": phone_number,
+                "ServiceID": 1409,
+                "Text": message,
+                "TokenID": "",
+                "TransactionID": datetime.utcnow().isoformat()
+            }
+            resp = await send_sms(
+                url = url,
+                payload = payload,
+                headers = headers
+            )
+            logging.info(f"Sending SMS via PSI provider response {resp}")
             return {
                 "phone_number": phone_number,
                 "message_id": message_id,
