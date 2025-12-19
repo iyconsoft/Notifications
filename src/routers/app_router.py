@@ -23,8 +23,8 @@ async def health_check(request: Request):
         "firebase": await check_url_health("https://aide-financial.firebaseio.com"),
     }
     
-    if any(service is True for service in health_status.values()):
-    # if any(service["status"] != "healthy" for service in health_status["services"].values()):
+    # if any(service[] is True for service in health_status.values()):
+    if any(service["status"] != "healthy" for service in health_status.values()):
         return build_error_response(
             "degraded", status.HTTP_207_MULTI_STATUS, health_status
         )
