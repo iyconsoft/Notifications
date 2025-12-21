@@ -21,7 +21,7 @@ async def health_check(request: Request):
         # "db": await check_db(db.session),
         "smpp": await check_url_health("https://smsgateway.iyconsoft.com/status?password=admin"),
         "pisi": await check_url_health("https://api.pisimobile.com/api/"),
-        "coroperate": await check_url_health("108.181.156.128:8800"),
+        "coroperate": await check_url_health("http://108.181.156.128:8800"),
         "erp": await check_url_health("https://erp.iyconsoft.com/web/health"),
         # "firebase": await check_url_health("https://aide-financial.firebaseio.com"),
     }

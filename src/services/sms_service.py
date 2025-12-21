@@ -39,9 +39,10 @@ class LocalSMSProvider(BaseSMSProvider):
             logging.info(f"Sending SMS via LOCAL provider to {phone_number}")
             
             url = f"https://smsgateway.iyconsoft.com/send?username=admin&password=admin&to={phone_number}&text={message}&coding=0&from=4800&smsc=smsc01&mclass=0"
-            headers = {"Content-Type": "application/json"}
+            headers = {}
+            # headers = {"Content-Type": "application/json"}
             resp = await send_sms(url, {}, headers, "GET")
-            logging.info(f"Sending SMS via LOCAL provider response {resp}")
+            logging.info(f"Sending SMS via SMPP provider response {resp}")
             return {
                 "phone_number": phone_number,
                 "message_id": message_id,
@@ -50,7 +51,7 @@ class LocalSMSProvider(BaseSMSProvider):
                 "timestamp": datetime.utcnow().isoformat()
             }
         except Exception as e:
-            logging.error(f"Local SMS send failed: {str(e)}")
+            logging.error(f"SMPP SMS send failed: {str(e)}")
             return {
                 "phone_number": phone_number,
                 "status": "failed",
@@ -133,7 +134,7 @@ class ThirdpartySMSProvider(BaseSMSProvider):
             message_id = str(uuid.uuid4())
             logging.info(f"Sending SMS via THIRDPARTY provider to {phone_number}")
             
-            url = f"108.181.156.128:8800/?phonenumber={phone_number}&text={message}&sender=4800&user=MTN&password=MTN&DCS=10"
+            url = f"http://108.181.156.128:8800/?phonenumber={phone_number}&text={message}&sender=4800&user=MTN&password=MTN&DCS=10"
             headers = {"Content-Type": "application/json"}
             resp = await send_sms(url, {}, headers, "GET")
             logging.info(f"Sending SMS via LOCAL provider response {resp}")
