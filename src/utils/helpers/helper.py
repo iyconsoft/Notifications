@@ -1,6 +1,7 @@
 import asyncio, time, json, time, socket, ssl, certifi, httpx
 from urllib.parse import urlparse
 from typing import Dict, Optional, Tuple
+from sqlalchemy import text
 
 
 async def check_url_health(
@@ -112,13 +113,8 @@ async def check_url_health(
                 status_category = "unknown"
             
             result = {
-                "status": status_category,
-                "status_code": status_code,
-                "url": str(response.url),  # Final URL after redirects
-                "original_url": url,
-                "method": method,
-                "timestamp": time.time(),
-                "success": status_code < 400
+                "status": "healthy" if 200 <= status_code < 400 else "unhealthy",
+                "details": "connection is successful" if 200 <= status_code < 400 else status_category
             }
             
             # Clean up
@@ -130,83 +126,48 @@ async def check_url_health(
         return {
             "status": "timeout",
             "error": f"Request timed out after {timeout} seconds",
-            "url": url,
-            "method": method,
-            "timestamp": time.time(),
-            "success": False,
-            "timeout_seconds": timeout
         }
     
     except httpx.ConnectError as e:
         return {
             "status": "connection_failed",
             "error": f"Connection failed: {str(e)}",
-            "url": url,
-            "method": method,
-            "timestamp": time.time(),
-            "success": False
         }
     
     except httpx.HTTPStatusError as e:
         return {
             "status": "response_error",
             "error": f"Response error: {str(e)}",
-            "status_code": e.response.status_code if hasattr(e, 'response') else None,
-            "url": url,
-            "method": method,
-            "timestamp": time.time(),
-            "success": False
         }
     
     except httpx.RemoteProtocolError:
         return {
             "status": "server_disconnected",
             "error": "Server disconnected unexpectedly",
-            "url": url,
-            "method": method,
-            "timestamp": time.time(),
-            "success": False
         }
     
     except ssl.SSLError as e:
         return {
             "status": "ssl_error",
             "error": f"SSL error: {str(e)}",
-            "url": url,
-            "method": method,
-            "timestamp": time.time(),
-            "success": False
         }
     
     except socket.gaierror as e:
         return {
             "status": "dns_error",
             "error": f"DNS resolution failed: {str(e)}",
-            "url": url,
-            "method": method,
-            "timestamp": time.time(),
-            "success": False
         }
     
     except httpx.RequestError as e:
         return {
             "status": "request_error",
             "error": f"Request error: {str(e)}",
-            "url": url,
-            "method": method,
-            "timestamp": time.time(),
-            "success": False
         }
     
     except Exception as e:
-        logging.error(f"Unexpected error checking URL {url}: {str(e)}", exc_info=True)
         return {
             "status": "error",
             "error": f"Unexpected error: {str(e)}",
-            "url": url,
-            "method": method,
-            "timestamp": time.time(),
-            "success": False
         }
 
 async def check_rabbitmq(connection) -> dict:
@@ -221,25 +182,20 @@ async def check_rabbitmq(connection) -> dict:
             "error": "RabbitMQ connection failed"
         }
 
-async def check_db(session) -> dict:
+async def check_db(engine, session) -> dict:
     """Comprehensive DB health check"""
     try:
-        ping_response = session.kw["bind"]
-        if not ping_response:
-            return {
-                "status": "unhealthy",
-                "error": "DB ping failed",
-                "details": "No PONG response"
-            }
+        await session.execute(text("SELECT 1"))
+        pool = engine.pool
 
         return {
             "status": "healthy",
             "details": {
                 "connection": "active",
                 "connection_pool": {
-                    "pool_size": ping_response.pool.size(),
-                    "checked_out": ping_response.pool.checkedout(),
-                    "overflow": ping_response.pool.overflow()
+                    "size": pool.size(),
+                    "checked_out": pool.checkedout(),
+                    "overflow": pool.overflow(),
                 }
             }
         }

@@ -8,15 +8,15 @@ services:
     restart: unless-stopped
     expose:
       - 8000
-    # command: [
-    #   "uvicorn", 
-    #   "src.main:app", 
-    #   "--host", "0.0.0.0", 
-    #   "--port", "8001", 
-    #   "--reload"
-    # ]
-    # volumes:
-    #   - ./:/usr/src/iyconsoftNotifications
+    command: [
+      "uvicorn", 
+      "src.main:app", 
+      "--host", "0.0.0.0", 
+      "--port", "8000", 
+      "--reload"
+    ]
+    volumes:
+      - ./:/usr/src/iyconsoftNotifications
     # ports:
     #   - 8001:8001
     networks:
@@ -26,8 +26,8 @@ services:
 
 networks:
   container-network:
-    # external: true
-    driver: bridge
+    external: true
+    # driver: bridge
 
     # ipam:
     #   config:
