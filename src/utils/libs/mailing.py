@@ -17,8 +17,9 @@ class EmailLib():
             raise Exception(str(e))
 
 
-    async def send_email(subject, recipient_email: str, body: str):
+    async def send_email(subject, recipient_email: str, body: str, use_template: bool = False):
         try :
+            # if use_template :
             html_content = await EmailLib.get_template('', 'index')
             html_body = html_content.replace('{{body}}', body)
             message = EmailMessage()

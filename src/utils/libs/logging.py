@@ -4,7 +4,7 @@ from colorlog import ColoredFormatter
 
 # Logging setup
 formatter = ColoredFormatter(
-    "%(log_color)s%(message)s",
+    "%(log_color)s%(asctime)s - %(levelname)s - %(message)s",
     datefmt="%Y-%m-%d %H:%M:%S",
     log_colors={
         "INFO": "green",
