@@ -1,6 +1,6 @@
 from contextlib import asynccontextmanager
 from src.routers import APIRouter, appRouter, email_router, sms_router
-from src.services import event_handler, eventrouter_handler
+from src.services import eventrouter_handler
 from src.core import (
     FastAPI, add_app_middlewares, add_exception_middleware, settings, asyncio, middlewares, logging
 )
@@ -8,22 +8,18 @@ from src.core import (
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     await asyncio.gather(
-        event_handler.connect_rabbitmq(app),
+        eventrouter_handler.connect_rabbitmq(app),
         add_exception_middleware(app),
         return_exceptions=True
     )
-    app.state.event_handler = event_handler
-    app.state.eventrouter_handler = eventrouter_handler
-
+    
     yield
     if hasattr(app.state, 'worker_task'):
         app.state.worker_task.cancel()
 
-    if hasattr(app.state, 'app.state.event_handler'):
-        await app.state.event_handler.stop_consuming()
+    if hasattr(app.state, 'app.state.eventrouter_handler'):
+        await eventrouter_handler.stop_consuming()
         await app.state.rabbit_connection.close()
-        app.state.event_handler = None
-        app.state.eventrouter_handler = None
 
 app: FastAPI = FastAPI(
     debug = settings.debug,

@@ -37,7 +37,6 @@ async def health_check(request: Request):
         # "firebase": firebase,
     }
     
-    # if any(service[] is True for service in health_status.values()):
     if any(service["status"] != "healthy" for service in health_status.values()):
         return build_error_response(
             "degraded", status.HTTP_207_MULTI_STATUS, health_status

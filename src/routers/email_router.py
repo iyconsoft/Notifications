@@ -5,7 +5,7 @@ from src.schemas import (
     BulkNotificationResponse
 )
 from src.repositories import (EmailRepository)
-from src.services import (eventrouter_handler)
+from src.services import (eventrouter_handler, event_handler)
 from src.utils.helpers import (build_success_response, build_error_response, BaseError)
 from src.core import (logging, settings)
 
@@ -102,6 +102,26 @@ async def send_bulk_emails(request: EmailBulkRequest, background_tasks: Backgrou
             data={"error": str(e)}
         )
 
+async def process_email_message(payload: dict):
+    """Process email message from queue"""
+    try:
+        email_type = payload.get("type")
+        email_data = payload.get("payload", {})
+        is_bulk = payload.get("isBulk", False)
 
-eventrouter_handler.register_handler('send_email', send_single_email, settings.queue_name)
-eventrouter_handler.register_handler('send_bulk_email', send_bulk_emails, settings.queue_name)
+        await email_repo.send_bulk_emails(
+            **email_data
+        ) if is_bulk else await email_repo.send_single_email(**email_data)
+
+        return {"status": "success"}
+    except Exception as e:
+        logging.error(f"failed to process email message {str(e)}")
+        return {"status": "failed", "error": str(e)}
+
+
+
+eventrouter_handler.register_handler(
+    message_type='email', 
+    callback=process_email_message,
+    queue_name=settings.queue_name
+)

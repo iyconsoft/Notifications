@@ -67,5 +67,27 @@ async def send_bulk_sms(request: SMSBulkRequest, background_tasks: BackgroundTas
         )
 
 
-eventrouter_handler.register_handler('send_sms', send_single_sms, settings.queue_name)
-eventrouter_handler.register_handler('send_bulk_sms', send_bulk_sms, settings.queue_name)
+async def process_sms_message(payload: dict):
+    """Process sms message from queue"""
+    try:
+        sms_type = payload.get("type")
+        sms_data = payload.get("payload", {})
+        is_bulk = payload.get("isBulk", False)
+
+        await sms_repo.send_bulk_sms(
+            **sms_data
+        ) if is_bulk else await sms_repo.send_single_sms(**sms_data)
+
+        return {"status": "success"}
+    except Exception as e:
+        logging.error(f"failed to process sms message {str(e)}")
+        return {"status": "failed", "error": str(e)}
+
+
+eventrouter_handler.register_handler(
+    message_type='sms', 
+    callback=process_sms_message,
+    queue_name=settings.queue_name
+)
+
+

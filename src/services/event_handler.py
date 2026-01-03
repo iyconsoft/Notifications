@@ -126,8 +126,6 @@ class EventHandler_Service:
         try:
             async with message.process():
                 body = json.loads(message.body.decode())
-                logging.info(f"Processing message from {queue_name}: {body}")
-                
                 # Get queue-specific callback
                 callback = self.message_callbacks.get(queue_name)
                 
@@ -189,12 +187,12 @@ class EventHandler_Service:
         try:
             async with queue.iterator() as queue_iter:
                 async for message in queue_iter:
-                    if not self.is_consuming:
-                        break
+                    # if not self.is_consuming:
+                    #     break
                     await self.process_message(message, queue_name)
                     
         except Exception as e:
-            logging.error(f"❌ Consumer error for {queue_name}: {e}")
+            logging.error(f"❌ Consumer error for {queue_name}")
             self.is_consuming = False
 
     async def stop_consuming(self, queue_name: str = None):
@@ -257,6 +255,7 @@ class RouterEventHandler(EventHandler_Service):
             if handler:
                 try:
                     await handler(body)
+                    # await message.ack()
                 except Exception as e:
                     logging.error(f"❌ Handler failed for '{message_type}' in {queue_name}: {e}")
                     await self.requeue_message(message, queue_name)
@@ -265,15 +264,5 @@ class RouterEventHandler(EventHandler_Service):
                 await self.default_message_processing(body, queue_name)
 
 
-event_handler: EventHandler_Service = EventHandler_Service()
 eventrouter_handler: RouterEventHandler = RouterEventHandler()
 
-
-#### getting event messages from event handler
-# router_handler.register_handler('email', send_email_handler, "notification_queue")
-# router_handler.register_handler('sms', send_sms_handler, "notification_queue")
-# router_handler.register_handler('notification', send_notification_handler, "notification_queue")
-
-
-#### sending messages to event handler
-# background_tasks.add_task(event_handler.send_message, payload, "notification_queue")
