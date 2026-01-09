@@ -1,4 +1,5 @@
-aiosmtplib==4.0.2
+aiosmtplib
+asyncpg
 aio_pika
 aiosqlite==0.21.0
 annotated-types==0.7.0
