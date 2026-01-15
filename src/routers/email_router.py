@@ -5,7 +5,6 @@ from src.schemas import (
     BulkNotificationResponse
 )
 from src.repositories import (EmailRepository)
-from src.services import (eventrouter_handler, event_handler)
 from src.utils.helpers import (build_success_response, build_error_response, BaseError)
 from src.core import (logging, settings)
 
@@ -119,9 +118,3 @@ async def process_email_message(payload: dict):
         return {"status": "failed", "error": str(e)}
 
 
-
-eventrouter_handler.register_handler(
-    message_type='email', 
-    callback=process_email_message,
-    queue_name=settings.queue_name
-)

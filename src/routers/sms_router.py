@@ -4,7 +4,6 @@ from src.schemas import (
     BulkNotificationResponse
 )
 from src.repositories import (SMSRepository)
-from src.services import (eventrouter_handler)
 from src.utils.helpers import (build_success_response, build_error_response, BaseError)
 from src.core import (logging, settings)
 
@@ -84,10 +83,5 @@ async def process_sms_message(payload: dict):
         return {"status": "failed", "error": str(e)}
 
 
-eventrouter_handler.register_handler(
-    message_type='sms', 
-    callback=process_sms_message,
-    queue_name=settings.queue_name
-)
 
 

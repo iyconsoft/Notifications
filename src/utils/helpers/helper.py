@@ -174,7 +174,10 @@ async def check_rabbitmq(connection) -> dict:
     try:
         channel = await connection.channel()
         await channel.close()  # Immediately close test channel
-        return {"status": "healthy", "details": "Connection active"}
+        return {
+            "status": "healthy", 
+            "details": "Connection active"
+        }
     except Exception as e:
         return {
             "status": "unhealthy", 

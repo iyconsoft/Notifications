@@ -115,3 +115,14 @@ Start the FastAPI server:
 bash
 Copy code
 uvicorn src.main:app --host 0.0.0.0 --port 8000 --reload
+
+
+
+
+* open email
+* click on an email
+* find realtor cid number
+* NB: if its a brd it would be specified if not sure ask @Adedeji
+* NB: there is a full process for BRD
+* check on the portal if the cid and name is same on email
+* ifconfirmed pass the cid number to the client register portal  - https://portal.zylusgroup.com/client-register/{cid} 

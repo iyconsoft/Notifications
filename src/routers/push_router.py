@@ -315,3 +315,18 @@ async def send_bulk_push(request: PushNotificationBulkRequest):
             status=status.HTTP_500_INTERNAL_SERVER_ERROR,
             data={"error": str(e)}
         )
+
+
+async def process_push_message(payload: dict):
+    """Process push message from queue"""
+    try:
+        push_type = payload.get("type")
+        push_data = payload.get("payload", {})
+        is_bulk = payload.get("isBulk", False)
+
+
+        return {"status": "success"}
+    except Exception as e:
+        logging.error(f"failed to process push message {str(e)}")
+        return {"status": "failed", "error": str(e)}
+
