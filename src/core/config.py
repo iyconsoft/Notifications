@@ -19,6 +19,13 @@ class AppSettings(BaseSettings):
     port: int
     app_version: str
     secret_key: str
+    db_username: str
+    db_password: str
+    db_server: str
+    db_port: str
+    db_name: str
+    db_external_name: str
+    db_dialect: str
     db_name: str
     sqlalchemy_database_uri: str
 
