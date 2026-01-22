@@ -107,6 +107,7 @@ async def process_email_message(payload: dict):
         email_type = payload.get("type")
         email_data = payload.get("payload", {})
         is_bulk = payload.get("isBulk", False)
+        logging.info(f"email message payload: {email_data}")
 
         await email_repo.send_bulk_emails(
             **email_data

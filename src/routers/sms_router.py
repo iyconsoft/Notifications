@@ -72,6 +72,7 @@ async def process_sms_message(payload: dict):
         sms_type = payload.get("type")
         sms_data = payload.get("payload", {})
         is_bulk = payload.get("isBulk", False)
+        logging.info(f"sms message payload: {sms_data}")
 
         await sms_repo.send_bulk_sms(
             **sms_data
