@@ -1,5 +1,5 @@
 from contextlib import asynccontextmanager
-from src.routers import APIRouter, appRouter, email_router, sms_router, process_sms_message, process_email_message
+from src.routers import api_router
 from src.services import eventrouter_handler
 from src.core import (
     FastAPI, add_app_middlewares, add_exception_middleware, settings, asyncio, middlewares, logging
@@ -19,7 +19,6 @@ async def lifespan(app: FastAPI):
         eventrouter_handler.register_handler('sms', process_sms_message, settings.queue_name ),
         return_exceptions=True
     )
-    await eventrouter_handler.setup_consumers(app)
     
     yield
     if hasattr(app.state, 'worker_task'):
@@ -43,8 +42,5 @@ app: FastAPI = FastAPI(
 )
 
 add_app_middlewares(app)
-app.include_router(appRouter, responses={404: {"description": "Not found"}})
-app.include_router(email_router, responses={404: {"description": "Not found"}})
-app.include_router(sms_router, responses={404: {"description": "Not found"}})
-
-
+app.include_router(api_router)
+await eventrouter_handler.setup_consumers(app)
