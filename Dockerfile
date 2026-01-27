@@ -43,7 +43,7 @@ RUN mkdir -p /tmp && chmod 1777 /tmp
 
 ENV PATH="$VENV_PATH/bin:$PATH"
 EXPOSE 8000
-CMD ["hypercorn", "src.main:app", "--workers", "4", "--bind", "0.0.0.0:8000", "--worker-class", "uvloop", "--max-requests", "10000", "--graceful-timeout", "60"]
+CMD ["hypercorn", "src.main:app", "--workers", "2", "--bind", "0.0.0.0:8000", "--worker-class", "uvloop", "--max-requests", "10000", "--graceful-timeout", "60"]
 
 
 

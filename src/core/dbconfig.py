@@ -16,7 +16,6 @@ port = settings.db_port
 dbname = settings.db_name
 dialect = settings.db_dialect
 dbname = settings.db_name if settings.db_dialect == 'sqlite' else settings.db_external_name
-print(dialect)
 
 SQLALCHEMY_DATABASE_URL = "sqlite+aiosqlite:///" + os.path.join( baseDir, f"{dbname}.db" ) if dialect == "sqlite" else f"{uri}://{username}:{password}@{server}:{port}/{dbname}"
 engine_args: dict = (
