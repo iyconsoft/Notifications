@@ -2,7 +2,7 @@ from abc import ABC, abstractmethod
 from datetime import datetime
 import uuid, asyncio, httpx, aiosmtplib
 from email.message import EmailMessage
-from src.core.config import settings, logging
+from src.core.config import (settings, logging)
 from src.utils import (EmailLib)
 
 
@@ -91,50 +91,74 @@ class ERPEmailProvider(BaseEmailProvider):
     
     def __init__(self):
         self.provider_name = "ERP"
-        self.erp_host = os.getenv("ERP_API_URL", "")
-        self.erp_api_key = os.getenv("ERP_API_KEY", "")
+        self.headers = settings.odoo_headers
+        self.headers["x-api-key"] = settings.api_key
+        self.headers["Connection"] = "keep-alive"
+        self.from_email = f"{settings.mail_from_name} <{settings.mail_sender}>"
+        self.payload =  {
+            "jsonrpc": "2.0", 
+            "method": "call", 
+            "params": {
+                "service": "object", 
+                "method": "execute",
+                "args": [ f"{settings.odoo_db}", f"{settings.odoo_uid}", f"{settings.odoo_api_key}" ]
+            }
+        }
+    
+    async def make_request(self, payload):
+        async with httpx.AsyncClient(timeout=120.0) as client:
+            resp = await client.post(
+                f"{settings.odoo_url}", 
+                json=payload, 
+                headers=self.headers
+            )
+            resp.raise_for_status()
+            return resp.json() if resp.content else {}
     
     async def send(self, to_email: str, subject: str, body: str, html_body: str = None) -> dict:
         """Send email via ERP provider"""
         try:
-            message_id = str(uuid.uuid4())
-            logging.info(f"Sending email via ERP to {to_email}")
-            # If ERP endpoint not configured, error out
-            if not self.erp_host:
-                raise RuntimeError("ERP API URL not configured")
+            message_id = f"<{uuid.uuid4()}@{self.from_email.split('@')[-1]}>"
+            resp = await self.make_request({
+                "jsonrpc": "2.0", 
+                "method": "call", 
+                "params": {
+                    "service": "object", 
+                    "method": "execute",
+                    "args": [ f"{settings.odoo_db}", f"{settings.odoo_uid}", f"{settings.odoo_api_key}", "mail.mail", "create", [{
+                        "email_to": to_email,
+                        "subject": subject,
+                        "email_from": self.from_email,
+                        "body_html": html_body if html_body is not None else body
+                    }] ]
+                }
+            })
 
-            payload = {
-                "to": to_email,
-                "subject": subject,
-                "body": body,
-                "html_body": html_body,
-                "message_id": message_id,
-            }
-            headers = {"Content-Type": "application/json"}
-            if self.erp_api_key:
-                headers["Authorization"] = f"Bearer {self.erp_api_key}"
-
-            async with httpx.AsyncClient(timeout=30) as client:
-                resp = await client.post(self.erp_host, json=payload, headers=headers)
-                resp.raise_for_status()
-                data = resp.json() if resp.content else {}
-
+            _resp = await self.make_request({
+                "jsonrpc": "2.0", 
+                "method": "call", 
+                "params": {
+                    "service": "object", 
+                    "method": "execute",
+                    "args": [ f"{settings.odoo_db}", f"{settings.odoo_uid}", f"{settings.odoo_api_key}", "mail.mail", "send", resp['result'] ]
+                }
+            })
+                
             return {
                 "to_email": to_email,
                 "message_id": message_id,
                 "status": "sent",
                 "provider": self.provider_name,
-                "timestamp": datetime.utcnow().isoformat(),
-                "erp_response": data
+                "timestamp": datetime.utcnow().isoformat()
             }
+        except httpx.HTTPStatusError as e:
+            logging.error(f"HTTP error creating mail: {e.response.status_code} - {e.response.text}")
+            raise
+
         except Exception as e:
             logging.error(f"ERP email send failed: {str(e)}")
             return {
-                "to_email": to_email,
-                "status": "failed",
-                "error": str(e),
-                "provider": self.provider_name,
-                "timestamp": datetime.utcnow().isoformat()
+                "error": str(e)
             }
     
     async def send_bulk(self, recipients: list, subject: str, body: str, html_body: str = None) -> list:

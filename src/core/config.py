@@ -2,6 +2,7 @@ import os, logging, asyncio
 from dotenv import load_dotenv
 from pydantic_settings import BaseSettings, SettingsConfigDict
 from src.utils.libs import log_handler, logger
+from typing import Dict
 
 logging.basicConfig(level=logging.DEBUG, handlers=[log_handler])
 baseDir = os.path.abspath(os.path.dirname(__file__))
@@ -57,22 +58,13 @@ class AppSettings(BaseSettings):
 
     sentry_dns: str = "https://952e53885dce39d9c6dc481ddbad407f@o4504234422632448.ingest.us.sentry.io/4507927449698304"
 
-    odoo_url: str = "https://backoffice.kreador.io/jsonrpc"
-    odoo_headers: dict = {
+    api_key: str
+    odoo_api_key: str
+    odoo_url: str 
+    odoo_uid: int
+    odoo_db: str
+    odoo_headers: Dict = {
         'Content-Type': 'application/json'
-    }
-    odoo_payload: dict = {
-        "jsonrpc": "2.0",
-        "method": "call",
-        "params": {
-            "service": "object",
-            "method": "execute",
-            "args": [
-                "developer_backoffice_db",
-                2,
-                "admin"
-            ]
-        }
     }
 
     model_config = SettingsConfigDict(env_file=".conf") 
