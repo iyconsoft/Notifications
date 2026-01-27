@@ -19,7 +19,7 @@ class EmailRepository:
                         recipients=settings.grafana_emails,
                         subject=f"Grafana Alert: {alert['labels'].get('alertname')}",
                         body=alert["annotations"].get("summary", "No summary provided"),
-                        provider="smtp"
+                        provider="erp"
                     )
                 )
             return True
