@@ -19,6 +19,7 @@ async def lifespan(app: FastAPI):
         eventrouter_handler.register_handler('sms', process_sms_message, settings.queue_name ),
         return_exceptions=True
     )
+    await eventrouter_handler.setup_consumers(app)
     
     yield
     if hasattr(app.state, 'worker_task'):
@@ -43,4 +44,3 @@ app: FastAPI = FastAPI(
 
 add_app_middlewares(app)
 app.include_router(api_router)
-await eventrouter_handler.setup_consumers(app)
