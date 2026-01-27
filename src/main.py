@@ -1,5 +1,5 @@
 from contextlib import asynccontextmanager
-from src.routers import api_router
+from src.routers import api_router, process_email_message, process_sms_message
 from src.services import eventrouter_handler
 from src.core import (
     FastAPI, add_app_middlewares, add_exception_middleware, settings, asyncio, middlewares, logging
