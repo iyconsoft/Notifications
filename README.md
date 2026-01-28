@@ -557,16 +557,6 @@ logger.error(f"Failed to send email: {error}")
 7. Push to branch: `git push origin feature/new-feature`
 8. Submit a pull request
 
-## 📄 License
-
-This project is licensed under the MIT License - see the LICENSE file for details.
-
-## 🆘 Support
-
-For support and questions:
-- Create an issue in the repository
-- Check the API documentation at `/docs`
-- Contact: support@iyconsoft.com
 
 ---
 
