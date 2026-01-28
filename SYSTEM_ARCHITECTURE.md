@@ -30,11 +30,11 @@
 │                   (notification_router.py)                         │
 ├────────────────────────────────────────────────────────────────────┤
 │  POST /api/notifications/sms/send                                  │
-│  POST /api/notifications/sms/send-bulk                             │
+│  POST /api/notifications/sms/bulk                             │
 │  POST /api/notifications/email/send                                │
-│  POST /api/notifications/email/send-bulk                           │
+│  POST /api/notifications/email/bulk                           │
 │  POST /api/notifications/push/send                                 │
-│  POST /api/notifications/push/send-bulk                            │
+│  POST /api/notifications/push/bulk                            │
 └────────┬──────────┬──────────────────┬──────────────────┬──────────┘
          │          │                  │                  │
     ┌────▼────┐ ┌───▼────┐   ┌────────▼──────┐   ┌───────▼────┐
@@ -65,12 +65,12 @@
     │    EXTERNAL PROVIDERS / APIS           │
     ├────────────────────────────────────────┤
     │ SMS:                                   │
-    │  • Local SMS Gateway                   │
+    │  • Local SMS Gateway   - KANNEL        │
     │  • PSI SMS API                         │
-    │  • Twilio / AWS SNS                    │
+    │  • CORPORATE SNS                       │
     │                                        │
     │ Email:                                 │
-    │  • SMTP Server (Gmail, SendGrid)       │
+    │  • SMTP Server (SMTP)       │
     │  • ERP System API                      │
     │                                        │
     │ Push:                                  │
@@ -92,7 +92,7 @@ CLIENT REQUEST
     │     ├─ Select Provider (realm)
     │     │  ├─ local
     │     │  ├─ psi
-    │     │  └─ thirdparty
+    │     │  └─ corpoerate
     │     ├─ Send Message
     │     ├─ Log Event
     │     └─ Return Response (message_id, status, timestamp)
