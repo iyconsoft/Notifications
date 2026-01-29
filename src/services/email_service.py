@@ -4,6 +4,7 @@ import uuid, asyncio, httpx, aiosmtplib
 from email.message import EmailMessage
 from src.core.config import (settings, logging)
 from src.utils import (EmailLib)
+from .erp_service import ERPService
 
 
 class BaseEmailProvider(ABC):
@@ -91,58 +92,21 @@ class ERPEmailProvider(BaseEmailProvider):
     
     def __init__(self):
         self.provider_name = "ERP"
-        self.headers = settings.odoo_headers
-        self.headers["x-api-key"] = settings.api_key
-        self.headers["Connection"] = "keep-alive"
         self.from_email = f"{settings.mail_from_name} <{settings.mail_sender}>"
-        self.payload =  {
-            "jsonrpc": "2.0", 
-            "method": "call", 
-            "params": {
-                "service": "object", 
-                "method": "execute",
-                "args": [ f"{settings.odoo_db}", f"{settings.odoo_uid}", f"{settings.odoo_api_key}" ]
-            }
-        }
-    
-    async def make_request(self, payload):
-        async with httpx.AsyncClient(timeout=120.0) as client:
-            resp = await client.post(
-                f"{settings.odoo_url}", 
-                json=payload, 
-                headers=self.headers
-            )
-            resp.raise_for_status()
-            return resp.json() if resp.content else {}
+        self.erp = ERPService()
     
     async def send(self, to_email: str, subject: str, body: str, html_body: str = None) -> dict:
         """Send email via ERP provider"""
         try:
             message_id = f"<{uuid.uuid4()}@{self.from_email.split('@')[-1]}>"
-            resp = await self.make_request({
-                "jsonrpc": "2.0", 
-                "method": "call", 
-                "params": {
-                    "service": "object", 
-                    "method": "execute",
-                    "args": [ f"{settings.odoo_db}", f"{settings.odoo_uid}", f"{settings.odoo_api_key}", "mail.mail", "create", [{
-                        "email_to": to_email,
-                        "subject": subject,
-                        "email_from": self.from_email,
-                        "body_html": html_body if html_body is not None else body
-                    }] ]
-                }
-            })
-
-            _resp = await self.make_request({
-                "jsonrpc": "2.0", 
-                "method": "call", 
-                "params": {
-                    "service": "object", 
-                    "method": "execute",
-                    "args": [ f"{settings.odoo_db}", f"{settings.odoo_uid}", f"{settings.odoo_api_key}", "mail.mail", "send", resp['result'] ]
-                }
-            })
+            
+            email_id = await self.erp.send_request("mail.mail", "create", [{
+                "email_to": to_email,
+                "subject": subject,
+                "email_from": self.from_email,
+                "body_html": html_body if html_body is not None else body
+            }])
+            resp = await self.erp.send_request("mail.mail", "send", email_id )
                 
             return {
                 "to_email": to_email,
