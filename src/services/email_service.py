@@ -11,7 +11,7 @@ class BaseEmailProvider(ABC):
     """Abstract base class for email providers"""
     
     @abstractmethod
-    async def send(self, to_email: str, subject: str, body: str, html_body: str = None) -> dict:
+    async def send(self, to_email: str, subject: str, body: str, html_body: str = None, template_id: int = None) -> dict:
         """Send email to a single recipient"""
         pass
     
@@ -95,10 +95,14 @@ class ERPEmailProvider(BaseEmailProvider):
         self.from_email = f"{settings.mail_from_name} <{settings.mail_sender}>"
         self.erp = ERPService()
     
-    async def send(self, to_email: str, subject: str, body: str, html_body: str = None) -> dict:
+    async def send(self, to_email: str, subject: str, body: str, html_body: str = None, template_id: str = None) -> dict:
         """Send email via ERP provider"""
         try:
             message_id = f"<{uuid.uuid4()}@{self.from_email.split('@')[-1]}>"
+
+            if template_id is not None:
+                template = await self.erp.send_request("mail.template", "read", [template_id])
+
             
             email_id = await self.erp.send_request("mail.mail", "create", [{
                 "email_to": to_email,

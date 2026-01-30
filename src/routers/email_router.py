@@ -26,7 +26,8 @@ async def send_single_email(request: EmailSingleRequest, background_tasks: Backg
             subject=request.subject,
             body=request.body,
             html_body=request.html_body,
-            provider=request.provider
+            provider=request.provider,
+            template_id=request.template_id
         )    
         return build_success_response(
             message="Email operation in progress",

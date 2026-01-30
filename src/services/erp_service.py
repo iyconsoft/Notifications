@@ -9,17 +9,19 @@ class ERPService:
         self.headers = settings.odoo_headers
         self.headers["x-api-key"] = settings.api_key
         self.headers["Connection"] = "keep-alive"
-        self.payload =  {
-            "jsonrpc": "2.0", 
-            "method": "call", 
-            "params": {
-                "service": "object", 
-                "method": "execute",
-                "args": [ f"{settings.odoo_db}", f"{settings.odoo_uid}", f"{settings.odoo_api_key}" ]
-            }
-        }
+        self.url = settings.odoo_url
+        # self.payload =  {
+        #     "jsonrpc": "2.0", 
+        #     "method": "call", 
+        #     "params": {
+        #         "service": "object", 
+        #         "method": "execute",
+        #         "args": [ f"{settings.odoo_db}", f"{settings.odoo_uid}", f"{settings.odoo_api_key}" ]
+        #     }
+        # }
+        self.payload =  {}
 
-    def generate_payload(model: str, action: str, payload):
+    def generate_payload(self, model: str, action: str, payload):
         form = self.payload
         form['params']['args'][3] = model
         form['params']['args'][4] = action
@@ -31,12 +33,13 @@ class ERPService:
         try:
             async with httpx.AsyncClient(timeout=120.0) as client:
                 resp = await client.post(
-                    f"{settings.odoo_url}", 
+                    f"{self.url}", 
                     json=payload, 
                     headers=self.headers
                 )
                 resp.raise_for_status()
                 response = resp.json() if resp.content else {}
+                logging.info(response)
                 if 'error' in response.keys():
                     raise Exception(response['error'])
 

@@ -37,7 +37,7 @@ class EmailRepository:
 
     
     async def send_single_email(self, to_email: str, subject: str, body: str, 
-                               html_body: Optional[str] = None, provider: str = "smtp") -> Dict[str, Any]:
+                               html_body: Optional[str] = None, provider: str = "smtp", template_id:str = None) -> Dict[str, Any]:
         """
         Send a single email
         
@@ -73,7 +73,7 @@ class EmailRepository:
                 )
             
             email_provider = self.factory.get_provider(provider)
-            result = await email_provider.send(to_email, subject, body, html_body)
+            result = await email_provider.send(to_email, subject, body, html_body, template_id)
             
             logging.info(f"Sending single email to {to_email} via {provider} was sent successfully")
             return {

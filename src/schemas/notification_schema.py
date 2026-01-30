@@ -64,6 +64,7 @@ class EmailSingleRequest(BaseModel):
     subject: str = Field(..., description="Email subject")
     body: str = Field(..., description="Email body content")
     html_body: Optional[str] = Field(None, description="HTML email body (optional)")
+    template_id: Optional[str] = Field(None, description="Email template id (optional)")
     provider: EmailTypeEnum = Field(..., description="Email provider type (erp, smtp)")
     
     class Config:
