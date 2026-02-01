@@ -102,7 +102,6 @@ class ERPEmailProvider(BaseEmailProvider):
 
             if template_id is not None:
                 template = await self.erp.send_request("mail.template", "read", [template_id])
-
             
             email_id = await self.erp.send_request("mail.mail", "create", [{
                 "email_to": to_email,

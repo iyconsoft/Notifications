@@ -10,16 +10,15 @@ class ERPService:
         self.headers["x-api-key"] = settings.api_key
         self.headers["Connection"] = "keep-alive"
         self.url = settings.odoo_url
-        # self.payload =  {
-        #     "jsonrpc": "2.0", 
-        #     "method": "call", 
-        #     "params": {
-        #         "service": "object", 
-        #         "method": "execute",
-        #         "args": [ f"{settings.odoo_db}", f"{settings.odoo_uid}", f"{settings.odoo_api_key}" ]
-        #     }
-        # }
-        self.payload =  {}
+        self.payload =  {
+            "jsonrpc": "2.0", 
+            "method": "call", 
+            "params": {
+                "service": "object", 
+                "method": "execute",
+                "args": [ f"{settings.odoo_db}", f"{settings.odoo_uid}", f"{settings.odoo_api_key}", "", "", "" ]
+            }
+        }
 
     def generate_payload(self, model: str, action: str, payload):
         form = self.payload
@@ -39,11 +38,10 @@ class ERPService:
                 )
                 resp.raise_for_status()
                 response = resp.json() if resp.content else {}
-                logging.info(response)
                 if 'error' in response.keys():
                     raise Exception(response['error'])
 
-                return response['result']
+                return response['result'] if 'result' in response.keys() else {}
             
         except Exception as e:
             raise Exception(str(e))
