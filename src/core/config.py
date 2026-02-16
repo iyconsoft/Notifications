@@ -16,6 +16,7 @@ class AppSettings(BaseSettings):
     app_name: str
     app_description: str
     app_origins: list[str]
+    app_excluded_urls: list[str]
     app_root: str
     port: int
     app_version: str
