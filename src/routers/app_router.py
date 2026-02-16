@@ -23,18 +23,15 @@ async def health_check(request: Request):
         check_url_health("https://smsgateway.iyconsoft.com/status?password=admin"),
         check_url_health("https://api.pisimobile.com/"),
         check_url_health("http://108.181.156.128:8800"),
-        check_url_health("https://erp.iyconsoft.com/web/health"),
-        # "firebase": await check_url_health("https://aide-financial.firebaseio.com"),
-        return_exceptions=True
+        check_url_health("https://erp.iyconsoft.com/web/health")
     )
     health_status = {
         "rabbitmq": rabbitmq,
         "db": _db,
         "erp": erp,
-        # "smpp": smpp,
+        "smpp": smpp,
         # "pisi": pisi,
         # "coroperate": coroperate
-        # "firebase": firebase,
     }
     
     if any(service["status"] != "healthy" for service in health_status.values()):
