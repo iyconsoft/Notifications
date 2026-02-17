@@ -8,7 +8,10 @@ from src.core.dbconfig import (
     engine_args,
 )
 from src.utils.helpers import (
-    RateLimiter, ExceptionMiddleware
+    RateLimiter, ExceptionMiddleware, 
+    BaseError, base_error_handler,
+    StarletteHTTPException, not_found_handler,
+    RequestValidationError, validation_exception_handler
 )
 from src.utils.libs import *
 
@@ -46,4 +49,4 @@ async def add_exception_middleware(app: FastAPI):
     app.add_exception_handler(BaseError, base_error_handler)
     app.add_exception_handler(StarletteHTTPException, not_found_handler)
     app.add_exception_handler(RequestValidationError, validation_exception_handler)
-    app.add_exception_handler(Exception, global_exception_handler)
+    # app.add_exception_handler(Exception, global_exception_handler)

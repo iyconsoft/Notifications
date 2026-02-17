@@ -43,8 +43,8 @@ async def validation_exception_handler(request: Request, exc: RequestValidationE
         })
 
     
-# async def global_exception_handler(request: Request, exc: Exception):
-#     return build_error_response(internalServerErrorMessage, statusCodes['500'])
+async def global_exception_handler(request: Request, exc: Exception):
+    return build_error_response(internalServerErrorMessage, statusCodes['500'])
 
 
 
@@ -66,14 +66,14 @@ async def catch_exceptions_middleware(request: Request, call_next):
     #             "verbose_message": f"Error: Redis operation timed out",
     #             "error_type": errorTypes['INTERNAL_SERVER_ERROR'],
     #         })
-    # except httpx.ConnectTimeout as exc:
-    #     logging.error(f"{internalServerErrorMessage}: {exc}", exc_info=False)
-    #     return build_error_response(
-    #         internalServerErrorMessage, statusCodes['504'], 
-    #         data={
-    #             "verbose_message": f"Error: operation timed out",
-    #             "error_type": errorTypes['INTERNAL_SERVER_ERROR'],
-    #         })
+    except httpx.ConnectTimeout as exc:
+        logging.error(f"{internalServerErrorMessage}: {exc}", exc_info=False)
+        return build_error_response(
+            internalServerErrorMessage, statusCodes['504'], 
+            data={
+                "verbose_message": f"Error: operation timed out",
+                "error_type": errorTypes['INTERNAL_SERVER_ERROR'],
+            })
     except RuntimeError as exc:
         logging.error(f"{internalServerErrorMessage}: {exc}", exc_info=False)
         return build_error_response(

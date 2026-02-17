@@ -1,25 +1,25 @@
 from contextlib import asynccontextmanager
 from src.routers import api_router, process_email_message, process_sms_message
-from src.services import eventrouter_handler
 from src.core import (
     FastAPI, add_app_middlewares, add_exception_middleware, settings, asyncio, middlewares, logging
 )
+from src.services import EventHandler_Service
+
+eventrouter_handler = EventHandler_Service()
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     await asyncio.gather(
         eventrouter_handler.connect_rabbitmq(app),
-        add_exception_middleware(app),
-        return_exceptions=True
+        add_exception_middleware(app)
     )
     await asyncio.gather(
-        # eventrouter_handler.setup_queue_consumer("mycaller_queue", app),
         eventrouter_handler.register_handler('email', process_email_message, settings.queue_name ),
         # eventrouter_handler.register_handler('push', process_push_message, settings.queue_name ),
-        eventrouter_handler.register_handler('sms', process_sms_message, settings.queue_name ),
-        return_exceptions=True
+        eventrouter_handler.register_handler('sms', process_sms_message, settings.queue_name )
     )
     await eventrouter_handler.setup_consumers(app)
+    app.state.eventrouter_handler = eventrouter_handler
     
     yield
     if hasattr(app.state, 'worker_task'):

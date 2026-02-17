@@ -28,7 +28,7 @@ class EventHandler_Service:
             self.handlers[queue] = {}
         
         self.handlers[queue][message_type] = callback
-        logging.info(f"✅ Handler registered for '{message_type}' in queue '{queue}'")
+        # logging.info(f"✅ Handler registered for '{message_type}' in queue '{queue}'")
 
     async def connect_rabbitmq(self, app):
         """Connect to RabbitMQ"""
@@ -60,7 +60,7 @@ class EventHandler_Service:
             queue_name=self.queue_name,
             app=app
         )
-        logging.info(f"✅ Started consumer for queue: {self.queue_name}")
+        # logging.info(f"✅ Started consumer for queue: {self.queue_name}")
 
     async def setup_queue_consumer(self, queue_name: str, app, prefetch_count: int = 10):
         """Setup consumer for a specific queue"""
@@ -88,7 +88,7 @@ class EventHandler_Service:
                 name=f"consumer-{queue_name}"
             )
             
-            logging.info(f"✅ Consumer task created for queue: {queue_name}")
+            # logging.info(f"✅ Consumer task created for queue: {queue_name}")
             
         except Exception as e:
             logging.error(f"❌ Failed to setup consumer for '{queue_name}': {e}")
@@ -209,4 +209,3 @@ class EventHandler_Service:
         logging.info("✅ Event handler stopped successfully")
 
 
-eventrouter_handler = EventHandler_Service()
