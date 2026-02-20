@@ -146,7 +146,7 @@ class KeycloakClient:
                     logging.info(f"Found {len(groups)} groups for user {user_id}")
                     return groups[0]
                 else:
-                    logging.error(f"Failed to fetch groups: {response.status_code} - {response.text}")
+                    logging.error(f"Failed to fetch organisations")
                     return []
                     
         except Exception as e:
