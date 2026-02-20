@@ -13,6 +13,7 @@ class EmailRepository:
         try:          
             alerts = data.get("alerts", [])
             response = []
+            logging.info(f"alert information: {alers}")
             for alert in alerts:
                 response.append(
                     await self.send_bulk_emails(
