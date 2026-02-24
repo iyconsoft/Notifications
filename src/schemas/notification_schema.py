@@ -11,6 +11,7 @@ class SMSTypeEnum(str, Enum):
     """SMS Provider Types"""
     LOCAL = "smpp"
     PSI = "pisi"
+    EXTERNAL = "external"
     THIRDPARTY = "coroperate"
 
 

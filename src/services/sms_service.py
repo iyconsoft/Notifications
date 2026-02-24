@@ -76,7 +76,6 @@ class ExternalSMSProvider(BaseSMSProvider):
         return results
 
 
-
 class LocalSMSProvider(BaseSMSProvider):
     """Local SMS Provider Implementation"""
     

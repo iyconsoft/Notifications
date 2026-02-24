@@ -76,7 +76,11 @@ async def process_sms_message(payload: dict):
 
         await sms_repo.send_bulk_sms(
             **sms_data
-        ) if is_bulk else await sms_repo.send_single_sms(**sms_data)
+        ) if is_bulk else await sms_repo.send_single_sms(
+            phone_number = sms_data.get('phone_number'),
+            message = sms_data.get('message').get('response') if sms_data.get('message').get('response') is not None else sms_data.get('message'),
+            realm = sms_data.get('realm')
+        )
 
         return {"status": "success"}
     except Exception as e:

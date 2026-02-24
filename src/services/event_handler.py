@@ -116,7 +116,6 @@ class EventHandler_Service:
         try:
             # Parse message
             body = json.loads(message.body.decode())
-            logging.info(f"📥 Received message from {queue_name}: {body.get('type', 'unknown')}")
             
             # Check for handler by message type
             message_type = body.get('type')
@@ -124,7 +123,6 @@ class EventHandler_Service:
             
             if message_type in queue_handlers:
                 handler = queue_handlers[message_type]
-                logging.info(f"🔄 Processing '{message_type}' with registered handler")
                 
                 async with message.process():
                     try:
