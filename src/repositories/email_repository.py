@@ -15,10 +15,8 @@ class EmailRepository:
             response = []
             desc = None
             for alert in alerts:
-                logging.info(f"Status : {alert["annotations"].get("Status")}")
-                logging.info(f"alertname : {alert['labels'].get('alertname')}")
-                logging.info(f"alert info : {alert['annotations']}")
-                
+                logging.info(f"alert info : {alert}")
+
                 if alert["annotations"].get("Status") == "RECOVERED":
                     desc = alert["annotations"].get("summary_resolved")
                 else:
