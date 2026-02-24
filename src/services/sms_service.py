@@ -48,7 +48,7 @@ class ExternalSMSProvider(BaseSMSProvider):
                 "msgtype": "FLASH",
                 "LinkID": datetime.utcnow().isoformat()
             }
-            resp = await send_sms(url, {}, headers)
+            resp = await send_sms(url, payload, headers)
             logging.info(f"Sending SMS via External provider response {resp}")
             return {
                 "phone_number": phone_number,
