@@ -13,19 +13,21 @@ class EmailRepository:
         try:          
             alerts = data.get("alerts", [])
             response = []
-            desc = None
             for alert in alerts:
-                logging.info(f"alert info : {alert}")
+                server = alert['labels'].get('alertname')
+                status = alert["annotations"].get("Status", "Down")
 
-                if alert["annotations"].get("Status") == "RECOVERED":
-                    desc = alert["annotations"].get("summary_resolved")
-                else:
-                    desc = alert["annotations"].get("summary", "No summary provided")
+                if server == "DatasourceNoData":
+                    server = alert['labels'].get('rulename')
+                    status = alert['labels'].get('severity')
+
+                subject = f"Monitoring Alert: {server} {status}"
+                desc = alert["annotations"].get("summary_resolved", "summary")
 
                 response.append(
                     await self.send_bulk_emails(
                         recipients=settings.grafana_emails,
-                        subject=f"Grafana Alert: {alert['labels'].get('alertname')} {alert["annotations"].get("Status", "Down")}",
+                        subject=subject,
                         body=desc,
                         provider="erp"
                     )
