@@ -36,7 +36,7 @@ class ExternalSMSProvider(BaseSMSProvider):
         """Send SMS via External provider"""
         try:
             message_id = str(uuid.uuid4())
-            logging.info(f"Sending SMS via External provider to {phone_number}")
+            # logging.info(f"Sending SMS via External provider to {phone_number}")
             
             url = f"http://89.107.58.138:88/util/4552.sms"
             headers = {
@@ -55,9 +55,10 @@ class ExternalSMSProvider(BaseSMSProvider):
             resp = await send_sms(url, payload, headers)
             logging.info(f"Sending SMS via External provider response {resp}")
             return {
+                "response": resp['message'],
                 "phone_number": phone_number,
                 "message_id": message_id,
-                "status": "sent",
+                "status": "sent" if resp['status'] else "error",
                 "provider": self.provider_name,
                 "timestamp": datetime.utcnow().isoformat()
             }
