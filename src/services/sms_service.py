@@ -39,7 +39,11 @@ class ExternalSMSProvider(BaseSMSProvider):
             logging.info(f"Sending SMS via External provider to {phone_number}")
             
             url = f"http://89.107.58.138:88/util/4552.sms"
-            headers = {"Content-Type": "application/json", "HTTP_X_TOKEN": ""}
+            headers = {
+                "Content-Type": "application/json", 
+                "x-token": "NJC4E567-E7DA-4429-8451-9381E0CP",
+                "cpid": 33
+            }
             payload = {
                 "SrcAddr": "4552",
                 "DestAddr": phone_number,
