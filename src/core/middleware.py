@@ -37,8 +37,8 @@ def add_app_middlewares(app: FastAPI):
     if hasattr(ssl, "_create_unverified_context"):
         ssl._create_default_https_context = ssl._create_unverified_context
 
-    if settings.debug is False:
-        sentry_init(settings.debug, settings.sentry_dns)
+    # if settings.debug is False:
+    #     sentry_init(settings.debug, settings.sentry_dns)
         
     # @app.middleware("http")
     # async def ip_block(request: Request, call_next):
