@@ -11,6 +11,7 @@ async def send_sms(url, payload, headers, method:str = "POST"):
     async with httpx.AsyncClient(timeout=30) as client:
         resp = await client.request(method, url, json=payload, headers=headers)
         resp.raise_for_status()
+        print(resp.text)
         if resp.text == "3: Queued for later delivery":
             return resp.text 
 
@@ -62,7 +63,7 @@ class ExternalSMSProvider(BaseSMSProvider):
             resp = await send_sms(url, payload, headers)
             logging.info(f"Sending SMS via External provider response {resp}")
             return {
-                "response": resp['message'],
+                "response": resp['message'] if resp['message'] else resp,
                 "phone_number": phone_number,
                 "message_id": message_id,
                 "status": "sent" if resp['status'] else "error",
