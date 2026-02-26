@@ -23,9 +23,9 @@ class EmailRepository:
             response = []
             for alert in alerts:
                 server = alert['labels'].get('alertname') if alert['labels'].get('alertname') != "DatasourceNoData" else alert['labels'].get('rulename')
-                status = "down" if alerts.get('status') == "firing" else "resolved"
+                status = "down" if data.get('status') == "firing" else "resolved"
                 subject = f"Monitoring Alert: {server} {status}"
-                desc = alert["annotations"].get("summary", f"{server} and is currently {status}") if alerts.get('status') == "firing" else alert["annotations"].get("summary_resolved")
+                desc = alert["annotations"].get("summary", f"{server} and is currently {status}") if data.get('status') == "firing" else alert["annotations"].get("summary_resolved")
 
                 response.append(
                     await self.send_bulk_emails(
