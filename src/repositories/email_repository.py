@@ -14,15 +14,21 @@ class EmailRepository:
             alerts = data.get("alerts", [])
             response = []
             for alert in alerts:
+                logging.info(f"allert information : {alert}")
                 server = alert['labels'].get('alertname')
-                status = alert["annotations"].get("Status", "Down")
+                status = alert["annotations"].get("Status")
 
                 if server == "DatasourceNoData":
                     server = alert['labels'].get('rulename')
                     status = alert['labels'].get('severity')
 
                 subject = f"Monitoring Alert: {server} {status}"
-                desc = alert["annotations"].get("summary_resolved", "summary")
+
+                if alert["annotations"].get("summary_resolved") is not None:
+                    desc = alert["annotations"].get("summary_resolved")
+
+                if alert["annotations"].get("summary") is not None:
+                    desc = alert["annotations"].get("summary", f"{server} and is currently {status}")
 
                 response.append(
                     await self.send_bulk_emails(

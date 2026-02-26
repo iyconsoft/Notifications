@@ -187,13 +187,12 @@ class CORPORATESMSProvider(BaseSMSProvider):
         """Send SMS via third-party provider"""
         try:
             message_id = str(uuid.uuid4())
-            logging.info(f"Sending SMS via THIRDPARTY provider to {phone_number}")
+            logging.info(f"Sending SMS via CORPORATE provider to {phone_number}")
             
             url = f"http://108.181.156.128:8800/?phonenumber={phone_number}&text={message}&sender=4800&user=MTN&password=MTN&DCS=10"
             logging.info(f"Sending SMS via {self.provider_name} provider with url {url}")
             headers = {}
             resp = await send_sms(url, {}, headers, "GET")
-            logging.info(f"Sending SMS via LOCAL provider response {resp}")
             
             return {
                 "phone_number": phone_number,
@@ -203,7 +202,7 @@ class CORPORATESMSProvider(BaseSMSProvider):
                 "timestamp": datetime.utcnow().isoformat()
             }
         except Exception as e:
-            logging.error(f"Third-party SMS send failed: {str(e)}")
+            logging.error(f"CORPORATE SMS send failed: {str(e)}")
             return {
                 "phone_number": phone_number,
                 "status": "failed",
