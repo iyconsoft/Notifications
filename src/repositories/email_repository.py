@@ -11,10 +11,10 @@ class EmailRepository:
     
     async def uptime_alert(self, data):
         try:        
-            logging.info(f"sent uptime information : {data}")
+            # logging.info(f"sent uptime information : {data}")
             await self.send_bulk_emails(
                 recipients=settings.grafana_emails,
-                subject="Testinng Uptime",
+                subject="Iyconsoft Server Montoring Alerts",
                 body=data.get("msg")
             )
             return True
