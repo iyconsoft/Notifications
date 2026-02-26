@@ -16,7 +16,7 @@ async def send_sms(url, payload, headers, method:str = "POST"):
             return resp.text 
 
         if resp.json().get("status") is False:
-            return resp.json().get("message") 
+            raise Exception resp.json().get("message") 
             
         return resp.json()
 
@@ -61,7 +61,6 @@ class ExternalSMSProvider(BaseSMSProvider):
                 "LinkID": datetime.utcnow().isoformat()
             }
             resp = await send_sms(url, payload, headers)
-            logging.info(f"Sending SMS via External provider response {resp}")
             return {
                 "response": resp['message'] if resp['message'] else resp,
                 "phone_number": phone_number,
@@ -104,6 +103,7 @@ class LocalSMSProvider(BaseSMSProvider):
             headers = {"Content-Type": "application/json"}
             resp = await send_sms(url, {}, headers, "GET")
             return {
+                "response": resp,
                 "phone_number": phone_number,
                 "message_id": message_id,
                 "status": "sent",
