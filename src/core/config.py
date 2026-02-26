@@ -68,6 +68,11 @@ class AppSettings(BaseSettings):
         'Content-Type': 'application/json'
     }
 
+    pisi_url: str = "https://api.pisimobile.net/v1/"
+    pisi_header: Dict = {
+        'Content-Type': 'application/json'
+    }
+
     model_config = SettingsConfigDict(env_file=".conf") 
 
 

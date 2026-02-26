@@ -5,6 +5,7 @@ from abc import ABC, abstractmethod
 from datetime import datetime
 import uuid, asyncio, httpx, aiosmtplib
 from src.utils.libs.logging import logging
+from src.core.config import (settings)
 
 async def send_sms(url, payload, headers, method:str = "POST"):
     async with httpx.AsyncClient(timeout=30) as client:
@@ -133,20 +134,20 @@ class PSISMSProvider(BaseSMSProvider):
             message_id = str(uuid.uuid4())
             logging.info(f"Sending SMS via PSI provider to {phone_number}")
             
-            url = "https://api.pisimobile.com/api/SendSMS"
             headers = {"Content-Type": "application/json"}
+            payload = { "vaspid": "3" }
+            resp = await send_sms( f"{settings.pisi_url}authentication/create", payload, headers )
+            if resp['success'] is False:
+                raise Exception("token not generated successfully")
+            
             payload = {
                 "MSISDN": f"{phone_number}",
                 "ServiceID": "1409",
                 "Text": message,
-                "TokenID": "",
+                "TokenID": resp['pisi-authorization-token'],
                 "TransactionID": datetime.utcnow().isoformat()
             }
-            resp = await send_sms(
-                url = url,
-                payload = payload,
-                headers = headers
-            )
+            resp = await send_sms( f"{settings.pisi_url.replace('net', 'com')}../api/SendSMS", payload, headers )
             logging.info(f"Sending SMS via PSI provider response {resp}")
             return {
                 "phone_number": "phone_number",
