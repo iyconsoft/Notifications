@@ -11,10 +11,10 @@ class EmailRepository:
     
     async def grafana_alert(self, data):
         try:          
+            logging.info(f"alert information : {data}")
             alerts = data.get("alerts", [])
             response = []
             for alert in alerts:
-                logging.info(f"allert information : {alert}")
                 server = alert['labels'].get('alertname')
                 status = alert["annotations"].get("Status")
 
