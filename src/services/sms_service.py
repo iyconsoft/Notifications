@@ -13,7 +13,7 @@ async def send_sms(url, payload, headers, method:str = "POST"):
         resp.raise_for_status()
         if resp.text == "3: Queued for later delivery":
             return resp.text 
-            
+
         if resp.json().get("status") is False:
             return resp.json().get("message") 
             
@@ -49,7 +49,7 @@ class ExternalSMSProvider(BaseSMSProvider):
             headers = {
                 "Content-Type": "application/json", 
                 "x-token": "NJC4E567-E7DA-4429-8451-9381E0CP",
-                "cpid": 33
+                "cpid": "33"
             }
             payload = {
                 "SrcAddr": "4552",
