@@ -68,7 +68,7 @@ class AppSettings(BaseSettings):
         'Content-Type': 'application/json'
     }
 
-    pisi_url: str = "https://api.pisimobile.net/v1/"
+    pisi_url: str = "https://api.pisimobile.com/"
     pisi_header: Dict = {
         'Content-Type': 'application/json'
     }

@@ -11,6 +11,7 @@ class EmailRepository:
     
     async def uptime_alert(self, data):
         try:        
+            logging.info(f"sent uptime information : {data}")
             await self.send_bulk_emails(
                 recipients=settings.grafana_emails,
                 subject="Testinng Uptime",
@@ -27,7 +28,7 @@ class EmailRepository:
             for alert in alerts:
                 server = alert['labels'].get('alertname') if alert['labels'].get('alertname') != "DatasourceNoData" else alert['labels'].get('rulename')
                 status = "down" if data.get('status') == "firing" else "resolved"
-                subject = f"Monitoring Alert: {server} {status}"
+                subject = f"Docker Container {server} {status}"
                 desc = alert["annotations"].get("summary", f"{server} and is currently {status}") if data.get('status') == "firing" else alert["annotations"].get("summary_resolved")
 
                 response.append(

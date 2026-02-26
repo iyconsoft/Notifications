@@ -11,7 +11,13 @@ async def send_sms(url, payload, headers, method:str = "POST"):
     async with httpx.AsyncClient(timeout=30) as client:
         resp = await client.request(method, url, json=payload, headers=headers)
         resp.raise_for_status()
-        return resp.text if resp.text == "3: Queued for later delivery" else resp.json()
+        if resp.text == "3: Queued for later delivery":
+            return resp.text 
+            
+        if resp.json().get("status") is False:
+            return resp.json().get("message") 
+            
+        return resp.json()
 
 class BaseSMSProvider(ABC):
     """Abstract base class for SMS providers"""
