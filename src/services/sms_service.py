@@ -23,12 +23,12 @@ class BaseSMSProvider(ABC):
     """Abstract base class for SMS providers"""
     
     @abstractmethod
-    async def send(self, phone_number: str, message: str) -> dict:
+    async def send(self, phone_number: str, message: str, type: str = "FLASH") -> dict:
         """Send SMS to a single recipient"""
         pass
     
     @abstractmethod
-    async def send_bulk(self, phone_numbers: list, message: str) -> list:
+    async def send_bulk(self, phone_numbers: list, message: str, type: str = "FLASH") -> list:
         """Send SMS to multiple recipients"""
         pass
 
@@ -39,7 +39,7 @@ class ExternalSMSProvider(BaseSMSProvider):
     def __init__(self):
         self.provider_name = "EXTERNAL"
     
-    async def send(self, phone_number: str, message: str) -> dict:
+    async def send(self, phone_number: str, message: str, type: str = "FLASH") -> dict:
         """Send SMS via External provider"""
         try:
             message_id = str(uuid.uuid4())
@@ -56,7 +56,7 @@ class ExternalSMSProvider(BaseSMSProvider):
                 "DestAddr": phone_number,
                 "ServiceID": "643",
                 "Message": f"mycaller: {message}",
-                "msgtype": "FLASH",
+                "msgtype": type,
                 "LinkID": datetime.utcnow().isoformat()
             }
             resp = await send_sms(url, payload, headers)
@@ -79,11 +79,11 @@ class ExternalSMSProvider(BaseSMSProvider):
                 "timestamp": datetime.utcnow().isoformat()
             }
     
-    async def send_bulk(self, phone_numbers: list, message: str) -> list:
+    async def send_bulk(self, phone_numbers: list, message: str, type: str = "FLASH") -> list:
         """Send bulk SMS via local provider"""
         results = []
         for phone_number in phone_numbers:
-            result = await self.send(phone_number, message)
+            result = await self.send(phone_number, message, type)
             results.append(result)
         return results
 
@@ -94,7 +94,7 @@ class LocalSMSProvider(BaseSMSProvider):
     def __init__(self):
         self.provider_name = "SMPP"
     
-    async def send(self, phone_number: str, message: str) -> dict:
+    async def send(self, phone_number: str, message: str, type: str = "FLASH") -> dict:
         """Send SMS via local provider"""
         try:
             message_id = str(uuid.uuid4())
@@ -119,11 +119,11 @@ class LocalSMSProvider(BaseSMSProvider):
                 "timestamp": datetime.utcnow().isoformat()
             }
     
-    async def send_bulk(self, phone_numbers: list, message: str) -> list:
+    async def send_bulk(self, phone_numbers: list, message: str, type: str = "FLASH") -> list:
         """Send bulk SMS via local provider"""
         results = []
         for phone_number in phone_numbers:
-            result = await self.send(phone_number, message)
+            result = await self.send(phone_number, message, type)
             results.append(result)
         return results
 
@@ -134,7 +134,7 @@ class PSISMSProvider(BaseSMSProvider):
     def __init__(self):
         self.provider_name = "PISI"
     
-    async def send(self, phone_number: str, message: str) -> dict:
+    async def send(self, phone_number: str, message: str, type: str = "FLASH") -> dict:
         """Send SMS via PSI provider"""
         try:
             message_id = str(uuid.uuid4())
@@ -172,11 +172,11 @@ class PSISMSProvider(BaseSMSProvider):
                 "timestamp": datetime.utcnow().isoformat()
             }
     
-    async def send_bulk(self, phone_numbers: list, message: str) -> list:
+    async def send_bulk(self, phone_numbers: list, message: str, type: str = "FLASH") -> list:
         """Send bulk SMS via PSI provider"""
         results = []
         for phone_number in phone_numbers:
-            result = await self.send(phone_number, message)
+            result = await self.send(phone_number, message, type)
             results.append(result)
         return results
 
@@ -187,7 +187,7 @@ class CORPORATESMSProvider(BaseSMSProvider):
     def __init__(self):
         self.provider_name = "CORPORATE"
     
-    async def send(self, phone_number: str, message: str) -> dict:
+    async def send(self, phone_number: str, message: str, type: str = "FLASH") -> dict:
         """Send SMS via third-party provider"""
         try:
             message_id = str(uuid.uuid4())
@@ -215,11 +215,11 @@ class CORPORATESMSProvider(BaseSMSProvider):
                 "timestamp": datetime.utcnow().isoformat()
             }
     
-    async def send_bulk(self, phone_numbers: list, message: str) -> list:
+    async def send_bulk(self, phone_numbers: list, message: str, type: str = "FLASH") -> list:
         """Send bulk SMS via third-party provider"""
         results = []
         for phone_number in phone_numbers:
-            result = await self.send(phone_number, message)
+            result = await self.send(phone_number, message, type)
             results.append(result)
         return results
 

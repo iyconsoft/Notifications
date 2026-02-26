@@ -14,7 +14,7 @@ class SMSRepository:
     def __init__(self):
         self.factory = SMSServiceFactory()
     
-    async def send_single_sms(self, phone_number: str, message: str, realm: str) -> Dict[str, Any]:
+    async def send_single_sms(self, phone_number: str, message: str, realm: str, type: str = "FLASH") -> Dict[str, Any]:
         """
         Send a single SMS message
         
@@ -63,7 +63,7 @@ class SMSRepository:
                 verboseMessage=str(e)
             )
     
-    async def send_bulk_sms(self, phone_numbers: List[str], message: str, realm: str) -> Dict[str, Any]:
+    async def send_bulk_sms(self, phone_numbers: List[str], message: str, realm: str, type: str = "FLASH") -> Dict[str, Any]:
         """
         Send bulk SMS messages
         
