@@ -10,7 +10,7 @@ async def send_sms(url, payload, headers, method:str = "POST"):
     async with httpx.AsyncClient(timeout=30) as client:
         resp = await client.request(method, url, json=payload, headers=headers)
         resp.raise_for_status()
-        return resp.json()
+        return resp.text if resp.text == "3: Queued for later delivery" else resp.json()
 
 class BaseSMSProvider(ABC):
     """Abstract base class for SMS providers"""
@@ -91,13 +91,10 @@ class LocalSMSProvider(BaseSMSProvider):
         """Send SMS via local provider"""
         try:
             message_id = str(uuid.uuid4())
-            logging.info(f"Sending SMS via LOCAL provider to {phone_number}")
             
             url = f"https://smsgateway.iyconsoft.com/send/?username=admin&password=admin&to={phone_number}&text={message}&coding=0&from=4800&smsc=smsc01&mclass=0"
-            # headers = {"Content-Type": "application/json"}
-            logging.info(f"Sending url {url}")
-            resp = await send_sms(url, {}, {}, "GET")
-            logging.info(f"Sending SMS via SMPP provider response {resp}")
+            headers = {"Content-Type": "application/json"}
+            resp = await send_sms(url, {}, headers, "GET")
             return {
                 "phone_number": phone_number,
                 "message_id": message_id,
