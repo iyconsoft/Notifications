@@ -74,9 +74,8 @@ async def webhook_email(request: Request, background_tasks: BackgroundTasks, x_g
     except Exception as e:
         logging.error(f"Unexpected error in email send: {str(e)}")
         return build_error_response(
-            message="An unexpected error occurred",
-            status=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            data={"error": str(e)}
+            message=str(e),
+            status=status.HTTP_500_INTERNAL_SERVER_ERROR
         )
 
 

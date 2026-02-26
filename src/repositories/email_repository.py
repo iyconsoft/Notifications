@@ -10,15 +10,18 @@ class EmailRepository:
         self.factory = EmailServiceFactory()
     
     async def uptime_alert(self, data):
-        try:          
-            logging.info(f"alert information : {data}")
+        try:        
+            await self.send_bulk_emails(
+                recipients=settings.grafana_emails,
+                subject="Testinng Uptime",
+                body=data.get("msg")
+            )
             return True
         except Exception as e:
             raise e
     
     async def grafana_alert(self, data):
         try:          
-            logging.info(f"alert information : {data}")
             alerts = data.get("alerts", [])
             response = []
             for alert in alerts:
@@ -35,6 +38,7 @@ class EmailRepository:
                         provider="erp"
                     )
                 )
+                logging.info(f"sent alert information : {server}")
             return True
         except Exception as e:
             raise e
@@ -50,7 +54,7 @@ class EmailRepository:
 
     
     async def send_single_email(self, to_email: str, subject: str, body: str, 
-                               html_body: Optional[str] = None, provider: str = "smtp", template_id:str = None) -> Dict[str, Any]:
+                               html_body: Optional[str] = None, provider: str = "erp", template_id:str = None) -> Dict[str, Any]:
         """
         Send a single email
         
