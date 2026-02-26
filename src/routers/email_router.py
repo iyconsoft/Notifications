@@ -49,17 +49,24 @@ async def send_single_email(request: EmailSingleRequest, background_tasks: Backg
 )
 async def webhook_email(request: Request, background_tasks: BackgroundTasks, x_grafana_token: Optional[str] = Header(None)):
     try:
-        if x_grafana_token != settings.grafana_webhook_secret:
-            return build_error_response(
-                message="Invalid Grafana webhook token",
-                status=status.HTTP_401_UNAUTHORIZED
-            )
-
         payload = await request.json()
-        background_tasks.add_task(
-            email_repo.grafana_alert, 
-            data=payload
-        )    
+        if x_grafana_token is None:
+            background_tasks.add_task(
+                email_repo.uptime_alert, 
+                data=payload
+            )    
+
+        else:
+            if x_grafana_token != settings.grafana_webhook_secret:
+                return build_error_response(
+                    message="Invalid Grafana webhook token",
+                    status=status.HTTP_401_UNAUTHORIZED
+                )
+
+            background_tasks.add_task(
+                email_repo.grafana_alert, 
+                data=payload
+            )    
         return build_success_response(
             message="Webhook email operation in progress",
             status=status.HTTP_200_OK

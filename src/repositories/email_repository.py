@@ -9,26 +9,23 @@ class EmailRepository:
     def __init__(self):
         self.factory = EmailServiceFactory()
     
+    async def uptime_alert(self, data):
+        try:          
+            logging.info(f"alert information : {data}")
+            return True
+        except Exception as e:
+            raise e
+    
     async def grafana_alert(self, data):
         try:          
             logging.info(f"alert information : {data}")
             alerts = data.get("alerts", [])
             response = []
             for alert in alerts:
-                server = alert['labels'].get('alertname')
-                status = alert["annotations"].get("Status")
-
-                if server == "DatasourceNoData":
-                    server = alert['labels'].get('rulename')
-                    status = alert['labels'].get('severity')
-
+                server = alert['labels'].get('alertname') if server != "DatasourceNoData" else alert['labels'].get('rulename')
+                status = "down" if alerts.get('status') == "firing" else "resolved"
                 subject = f"Monitoring Alert: {server} {status}"
-
-                if alert["annotations"].get("summary_resolved") is not None:
-                    desc = alert["annotations"].get("summary_resolved")
-
-                if alert["annotations"].get("summary") is not None:
-                    desc = alert["annotations"].get("summary", f"{server} and is currently {status}")
+                desc = alert["annotations"].get("summary", f"{server} and is currently {status}") if alerts.get('status') == "firing" else alert["annotations"].get("summary_resolved")
 
                 response.append(
                     await self.send_bulk_emails(
