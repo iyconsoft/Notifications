@@ -16,7 +16,7 @@ async def send_sms(url, payload, headers, method:str = "POST"):
             return resp.text 
 
         if resp.json().get("status") is False:
-            raise Exception resp.json().get("message") 
+            raise Exception(resp.json().get("message"))
             
         return resp.json()
 
