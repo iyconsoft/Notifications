@@ -9,6 +9,10 @@ from src.core.config import (settings)
 
 async def send_sms(url, payload, headers, method:str = "POST"):
     async with httpx.AsyncClient(timeout=30) as client:
+        logging.info(f"payload : {payload}")
+        logging.info(f"headers : {headers}")
+        logging.info(f"url : {url}")
+        logging.info(f"method : {method}")
         resp = await client.request(method, url, json=payload, headers=headers)
         resp.raise_for_status()
         print(resp.text)
