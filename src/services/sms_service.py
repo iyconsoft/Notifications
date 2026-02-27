@@ -52,7 +52,8 @@ class ExternalSMSProvider(BaseSMSProvider):
             
             url = f"http://89.107.58.138:88/util/4552.sms"
             headers = {
-                "Content-Type": "application/json", 
+                    "Content-Type": "application/json; charset=utf-8",
+                    "Accept": "application/json; charset=utf-8",
                 "x-token": "NJC4E567-E7DA-4429-8451-9381E0CP",
                 "cpid": "33"
             }
@@ -104,7 +105,10 @@ class LocalSMSProvider(BaseSMSProvider):
             message_id = str(uuid.uuid4())
             
             url = f"https://smsgateway.iyconsoft.com/send/?username=admin&password=admin&to={phone_number}&text={message}&coding=0&from=4800&smsc=smsc01&mclass=0"
-            headers = {"Content-Type": "application/json"}
+            headers = {
+                    "Content-Type": "application/json; charset=utf-8",
+                    "Accept": "application/json; charset=utf-8"
+            }
             resp = await send_sms(url, {}, headers, "GET")
             return {
                 "response": resp,
@@ -145,7 +149,10 @@ class PSISMSProvider(BaseSMSProvider):
             message_id = str(uuid.uuid4())
             logging.info(f"Sending SMS via PSI provider to {phone_number}")
             
-            headers = {"Content-Type": "application/json"}
+            headers = {
+                    "Content-Type": "application/json; charset=utf-8",
+                    "Accept": "application/json; charset=utf-8"
+            }
             payload = { "vaspid": "3" }
             resp = await send_sms( f"{settings.pisi_url}authentication/create", payload, headers )
             if resp['success'] is False:
@@ -200,7 +207,10 @@ class CORPORATESMSProvider(BaseSMSProvider):
             
             url = f"http://108.181.156.128:8800/?phonenumber={phone_number}&text={message}&sender=4800&user=MTN&password=MTN&DCS=10"
             logging.info(f"Sending SMS via {self.provider_name} provider with url {url}")
-            headers = {}
+            headers = {
+                    "Content-Type": "application/json; charset=utf-8",
+                    "Accept": "application/json; charset=utf-8"
+            }
             resp = await send_sms(url, {}, headers, "GET")
             
             return {
