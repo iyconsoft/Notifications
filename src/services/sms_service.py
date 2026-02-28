@@ -52,8 +52,8 @@ class ExternalSMSProvider(BaseSMSProvider):
             
             url = f"http://89.107.58.138:88/util/4552.sms"
             headers = {
-                    "Content-Type": "application/json; charset=utf-8",
-                    "Accept": "application/json; charset=utf-8",
+                    "Content-Type": "application/json",
+                    "Accept": "application/json",
                 "x-token": "NJC4E567-E7DA-4429-8451-9381E0CP",
                 "cpid": "33"
             }
@@ -61,7 +61,7 @@ class ExternalSMSProvider(BaseSMSProvider):
                 "SrcAddr": "4552",
                 "DestAddr": phone_number,
                 "ServiceID": "643",
-                "Message": f"mycaller: {message}",
+                "Message": f"mycaller: {message.replace('\n', '\\n')}",
                 "msgtype": type,
                 "LinkID": datetime.utcnow().isoformat()
             }
@@ -106,8 +106,8 @@ class LocalSMSProvider(BaseSMSProvider):
             
             url = f"https://smsgateway.iyconsoft.com/send/?username=admin&password=admin&to={phone_number}&text={message}&coding=0&from=4800&smsc=smsc01&mclass=0"
             headers = {
-                    "Content-Type": "application/json; charset=utf-8",
-                    "Accept": "application/json; charset=utf-8"
+                    "Content-Type": "application/json",
+                    "Accept": "application/json"
             }
             resp = await send_sms(url, {}, headers, "GET")
             return {
@@ -150,8 +150,8 @@ class PSISMSProvider(BaseSMSProvider):
             logging.info(f"Sending SMS via PSI provider to {phone_number}")
             
             headers = {
-                    "Content-Type": "application/json; charset=utf-8",
-                    "Accept": "application/json; charset=utf-8"
+                    "Content-Type": "application/json",
+                    "Accept": "application/json"
             }
             payload = { "vaspid": "3" }
             resp = await send_sms( f"{settings.pisi_url}authentication/create", payload, headers )
@@ -208,8 +208,8 @@ class CORPORATESMSProvider(BaseSMSProvider):
             url = f"http://108.181.156.128:8800/?phonenumber={phone_number}&text={message}&sender=4800&user=MTN&password=MTN&DCS=10"
             logging.info(f"Sending SMS via {self.provider_name} provider with url {url}")
             headers = {
-                    "Content-Type": "application/json; charset=utf-8",
-                    "Accept": "application/json; charset=utf-8"
+                    "Content-Type": "application/json",
+                    "Accept": "application/json"
             }
             resp = await send_sms(url, {}, headers, "GET")
             
