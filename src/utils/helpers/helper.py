@@ -7,11 +7,12 @@ from sqlalchemy import text
 async def check_url_health(
     url: str,
     timeout: float = 5.0,
-    method: str = "HEAD",
+    method: str = "GET",  # Changed default to GET
     verify_ssl: bool = True,
     follow_redirects: bool = True,
     user_agent: Optional[str] = None,
-    retries: int = 0
+    retries: int = 0,
+    max_response_size: Optional[int] = None,  # New: limit response size for GET
     ) -> Dict[str, any]:
     
     # Validate and parse URL
@@ -21,15 +22,11 @@ async def check_url_health(
             return {
                 "status": "invalid",
                 "error": "Invalid URL format",
-                "url": url,
-                "timestamp": time.time()
             }
     except Exception as e:
         return {
             "status": "invalid",
             "error": f"URL parsing error: {str(e)}",
-            "url": url,
-            "timestamp": time.time()
         }
     
     # Prepare request parameters
@@ -39,12 +36,18 @@ async def check_url_health(
     else:
         headers["User-Agent"] = "HealthCheck/1.0"
     
+    # Add headers to avoid downloading large content unnecessarily
+    if method.upper() == "GET":
+        headers["Accept"] = "*/*"
+        headers["Accept-Encoding"] = "gzip, deflate"  # Allow compression
+    
     # Track metrics
     start_time = time.monotonic()
     dns_resolution_time = None
     tcp_connection_time = None
     first_byte_time = None
     total_time = None
+    content_size = None
     
     # Configure HTTPX client
     transport_args = {}
@@ -70,6 +73,10 @@ async def check_url_health(
         # Create httpx client with timeout
         timeout_config = httpx.Timeout(timeout, connect=timeout, read=timeout, write=timeout)
         
+        # SSL verification control
+        if not verify_ssl:
+            transport_args['verify'] = False
+        
         async with httpx.AsyncClient(
             timeout=timeout_config,
             headers=headers,
@@ -81,8 +88,11 @@ async def check_url_health(
             # Track TCP connection start
             tcp_start = time.monotonic()
             
-            # Make the request
-            request = client.build_request(method=method, url=url)
+            # Build the request
+            request = client.build_request(
+                method=method.upper(),  # Ensure uppercase
+                url=url
+            )
             
             # Send request and track first byte
             response = await client.send(request, stream=True)
@@ -92,9 +102,31 @@ async def check_url_health(
             # Record time to first byte (headers received)
             first_byte_time = (time.monotonic() - start_time) * 1000
             
-            # Read response body if needed
+            # For GET requests, we need to read the response body
             if method.upper() == "GET":
-                await response.aread()
+                try:
+                    # Optionally limit response size
+                    if max_response_size:
+                        # Read in chunks to respect size limit
+                        content = bytearray()
+                        async for chunk in response.aiter_bytes():
+                            content.extend(chunk)
+                            if len(content) > max_response_size:
+                                # Truncate and break
+                                content = content[:max_response_size]
+                                break
+                    else:
+                        # Read full response
+                        await response.aread()
+                    
+                    content_size = len(response.content) if hasattr(response, 'content') else 0
+                    
+                except httpx.StreamConsumed:
+                    # Handle case where stream was already consumed
+                    pass
+                except Exception as e:
+                    # Log but don't fail health check for content reading errors
+                    print(f"Warning: Error reading response body: {e}")
             
             total_time = (time.monotonic() - start_time) * 1000
             
@@ -112,10 +144,12 @@ async def check_url_health(
             else:
                 status_category = "unknown"
             
+            # Build result
             result = {
                 "status": "healthy" if 200 <= status_code < 400 else "unhealthy",
-                "details": "connection is successful" if 200 <= status_code < 400 else status_category
+                "details": f"server returned a {status_category} response",
             }
+            
             
             # Clean up
             await response.aclose()
@@ -125,49 +159,49 @@ async def check_url_health(
     except httpx.TimeoutException:
         return {
             "status": "timeout",
-            "error": f"Request timed out after {timeout} seconds",
+            "error": f"Request timed out after {timeout} seconds"
         }
     
     except httpx.ConnectError as e:
         return {
             "status": "connection_failed",
-            "error": f"Connection failed: {str(e)}",
+            "error": f"Connection failed: {str(e)}"
         }
     
     except httpx.HTTPStatusError as e:
         return {
             "status": "response_error",
-            "error": f"Response error: {str(e)}",
+            "error": f"Response error: {str(e)}"
         }
     
     except httpx.RemoteProtocolError:
         return {
             "status": "server_disconnected",
-            "error": "Server disconnected unexpectedly",
+            "error": "Server disconnected unexpectedly"
         }
     
     except ssl.SSLError as e:
         return {
             "status": "ssl_error",
-            "error": f"SSL error: {str(e)}",
+            "error": f"SSL error: {str(e)}"
         }
     
     except socket.gaierror as e:
         return {
             "status": "dns_error",
-            "error": f"DNS resolution failed: {str(e)}",
+            "error": f"DNS resolution failed: {str(e)}"
         }
     
     except httpx.RequestError as e:
         return {
             "status": "request_error",
-            "error": f"Request error: {str(e)}",
+            "error": f"Request error: {str(e)}"
         }
     
     except Exception as e:
         return {
             "status": "error",
-            "error": f"Unexpected error: {str(e)}",
+            "error": f"Unexpected error: {str(e)}"
         }
 
 async def check_rabbitmq(connection) -> dict:
