@@ -19,7 +19,7 @@ async def send_sms(url, payload, headers, method:str = "POST"):
         if resp.text == "3: Queued for later delivery":
             return resp.text 
 
-        if resp.json().get("status") is False:
+        if resp.json().get("status") is False or resp.json().get("message") != "Request failed: No Opt-in":
             raise Exception(resp.json().get("message"))
             
         return resp.json()
