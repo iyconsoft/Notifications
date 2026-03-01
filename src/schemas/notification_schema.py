@@ -74,7 +74,7 @@ class EmailSingleRequest(BaseModel):
             "subject": "Welcome",
             "body": "Hello user",
             "html_body": "<h1>Hello</h1>",
-            "provider": "smtp"
+            "provider": "erp"
         }
 
 
