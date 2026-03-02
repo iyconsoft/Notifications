@@ -114,7 +114,7 @@ class EmailRepository:
             )
     
     async def send_bulk_emails(self, recipients: List[str], subject: str, body: str,
-                              html_body: Optional[str] = None, provider: str = "smtp") -> Dict[str, Any]:
+                              html_body: Optional[str] = None, provider: str = "erp") -> Dict[str, Any]:
         """
         Send bulk emails
         
