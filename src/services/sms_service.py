@@ -5,7 +5,8 @@ from abc import ABC, abstractmethod
 from datetime import datetime
 import uuid, asyncio, httpx, aiosmtplib
 from src.utils.libs.logging import logging
-from src.core.config import (settings)
+from src.core.config import (settings)python
+import urllib.parse
 
 async def send_sms(url, payload, headers, method:str = "POST"):
     async with httpx.AsyncClient(timeout=30) as client:
@@ -106,7 +107,7 @@ class LocalSMSProvider(BaseSMSProvider):
         """Send SMS via local provider"""
         try:
             message_id = str(uuid.uuid4())
-            
+            message = urllib.parse.quote(message)
             url = f"https://smsgateway.iyconsoft.com/send/?username=admin&password=admin&to={phone_number}&text={message}&coding=0&from=4800&smsc=smsc01&mclass=0"
             headers = {
                     "Content-Type": "application/json",

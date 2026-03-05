@@ -36,3 +36,4 @@ prometheus-fastapi-instrumentator
 aioredis
 sentry-sdk
 python-jose
+urllib
