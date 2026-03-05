@@ -22,7 +22,8 @@ async def send_single_sms(request: SMSSingleRequest, background_tasks: Backgroun
             sms_repo.send_single_sms,
             phone_number=request.phone_number,
             message=request.message,
-            realm=request.realm
+            realm=request.realm,
+            payload=request
         )
         
         return build_success_response(
@@ -50,7 +51,8 @@ async def send_bulk_sms(request: SMSBulkRequest, background_tasks: BackgroundTas
             sms_repo.send_bulk_sms,
             phone_numbers=request.recipients,
             message=request.message,
-            realm=request.realm
+            realm=request.realm,
+            payload=request
         )
         
         return build_success_response(

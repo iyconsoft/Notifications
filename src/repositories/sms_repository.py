@@ -14,7 +14,7 @@ class SMSRepository:
     def __init__(self):
         self.factory = SMSServiceFactory()
     
-    async def send_single_sms(self, phone_number: str, message: str, realm: str, type: str = "FLASH") -> Dict[str, Any]:
+    async def send_single_sms(self, phone_number: str, message: str, realm: str, type: str = "FLASH", payload: Any = {}) -> Dict[str, Any]:
         """
         Send a single SMS message
         
@@ -42,7 +42,7 @@ class SMSRepository:
             
             logging.info(f"Sending single SMS to {phone_number} via {realm}")
             provider = self.factory.get_provider(realm)
-            result = await provider.send(phone_number, message)
+            result = await provider.send(phone_number, message, type, payload)
             
             return {
                 "success": result.get("status") == "sent",
@@ -63,7 +63,7 @@ class SMSRepository:
                 verboseMessage=str(e)
             )
     
-    async def send_bulk_sms(self, phone_numbers: List[str], message: str, realm: str, type: str = "FLASH") -> Dict[str, Any]:
+    async def send_bulk_sms(self, phone_numbers: List[str], message: str, realm: str, type: str = "FLASH", payload: Any = None) -> Dict[str, Any]:
         """
         Send bulk SMS messages
         
@@ -98,7 +98,7 @@ class SMSRepository:
             
             # Get appropriate provider based on realm
             provider = self.factory.get_provider(realm)
-            results = await provider.send_bulk(phone_numbers, message)
+            results = await provider.send_bulk(phone_numbers, message, type, payload)
             
             # Calculate statistics
             successful = sum(1 for r in results if r.get("status") == "sent")

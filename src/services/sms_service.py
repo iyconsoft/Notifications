@@ -7,6 +7,7 @@ import uuid, asyncio, httpx, aiosmtplib
 from src.utils.libs.logging import logging
 from src.core.config import (settings)
 import urllib.parse
+from typing import Any
 
 async def send_sms(url, payload, headers, method:str = "POST"):
     async with httpx.AsyncClient(timeout=30) as client:
@@ -32,12 +33,12 @@ class BaseSMSProvider(ABC):
     """Abstract base class for SMS providers"""
     
     @abstractmethod
-    async def send(self, phone_number: str, message: str, type: str = "FLASH") -> dict:
+    async def send(self, phone_number: str, message: str, type: str = "FLASH", payload: Any = None) -> dict:
         """Send SMS to a single recipient"""
         pass
     
     @abstractmethod
-    async def send_bulk(self, phone_numbers: list, message: str, type: str = "FLASH") -> list:
+    async def send_bulk(self, phone_numbers: list, message: str, type: str = "FLASH", payload: Any = None) -> list:
         """Send SMS to multiple recipients"""
         pass
 
@@ -48,7 +49,7 @@ class ExternalSMSProvider(BaseSMSProvider):
     def __init__(self):
         self.provider_name = "EXTERNAL"
     
-    async def send(self, phone_number: str, message: str, type: str = "FLASH") -> dict:
+    async def send(self, phone_number: str, message: str, type: str = "FLASH", _payload: Any = {}) -> dict:
         """Send SMS via External provider"""
         try:
             message_id = str(uuid.uuid4())
@@ -64,8 +65,8 @@ class ExternalSMSProvider(BaseSMSProvider):
             payload = {
                 "SrcAddr": "4552",
                 "DestAddr": phone_number,
-                "ServiceID": "643",
-                "Message": f"mycaller: {message.replace('\n', '\\n')}",
+                "ServiceID": _payload.get('serviceId', 'serviceID', 'serviceid', "643"),
+                "Message": f"mycaller: {message}",
                 "msgtype": type,
                 "LinkID": datetime.utcnow().isoformat()
             }
@@ -88,11 +89,11 @@ class ExternalSMSProvider(BaseSMSProvider):
                 "timestamp": datetime.utcnow().isoformat()
             }
     
-    async def send_bulk(self, phone_numbers: list, message: str, type: str = "FLASH") -> list:
+    async def send_bulk(self, phone_numbers: list, message: str, type: str = "FLASH", payload: Any = {}) -> list:
         """Send bulk SMS via local provider"""
         results = []
         for phone_number in phone_numbers:
-            result = await self.send(phone_number, message, type)
+            result = await self.send(phone_number, message, type, payload)
             results.append(result)
         return results
 
