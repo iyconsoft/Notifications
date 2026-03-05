@@ -5,7 +5,7 @@ from abc import ABC, abstractmethod
 from datetime import datetime
 import uuid, asyncio, httpx, aiosmtplib
 from src.utils.libs.logging import logging
-from src.core.config import (settings)python
+from src.core.config import (settings)
 import urllib.parse
 
 async def send_sms(url, payload, headers, method:str = "POST"):
