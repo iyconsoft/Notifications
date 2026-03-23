@@ -1,5 +1,6 @@
 from datetime import datetime
 from typing import List, Dict, Any, Optional
+import asyncio
 from src.services import (EmailServiceFactory)
 from src.core import (logging,settings)
 from src.utils.helpers.errors import BadRequestError, ServiceUnavailableError
@@ -24,22 +25,26 @@ class EmailRepository:
     async def grafana_alert(self, data):
         try:          
             alerts = data.get("alerts", [])
-            response = []
-            for alert in alerts:
+            
+            # Process all alerts in parallel for faster execution
+            async def process_single_alert(alert):
                 server = alert['labels'].get('alertname') if alert['labels'].get('alertname') != "DatasourceNoData" else alert['labels'].get('rulename')
                 status = "down" if data.get('status') == "firing" else "resolved"
                 subject = f"Docker Container {server} {status}"
                 desc = alert["annotations"].get("summary", f"{server} and is currently {status}") if data.get('status') == "firing" else alert["annotations"].get("summary_resolved")
 
-                response.append(
-                    await self.send_bulk_emails(
-                        recipients=settings.grafana_emails,
-                        subject=subject,
-                        body=desc,
-                        provider="erp"
-                    )
-                )
                 logging.info(f"sent alert information : {server}")
+                return await self.send_bulk_emails(
+                    recipients=settings.grafana_emails,
+                    subject=subject,
+                    body=desc,
+                    provider="erp"
+                )
+            
+            # Execute all alert emails in parallel
+            response = await asyncio.gather(*[
+                process_single_alert(alert) for alert in alerts
+            ])
             return True
         except Exception as e:
             raise e

@@ -62,7 +62,7 @@ class EventHandler_Service:
         )
         # logging.info(f"✅ Started consumer for queue: {self.queue_name}")
 
-    async def setup_queue_consumer(self, queue_name: str, app, prefetch_count: int = 10):
+    async def setup_queue_consumer(self, queue_name: str, app, prefetch_count: int = 25):
         """Setup consumer for a specific queue"""
         try:
             # Create channel for this queue
@@ -112,10 +112,17 @@ class EventHandler_Service:
             logging.error(f"❌ Consumer error for {queue_name}: {e}")
 
     async def process_incoming_message(self, message: IncomingMessage, queue_name: str):
-        """Process incoming message"""
+        """Process incoming message with retry limits"""
+        MAX_RETRIES = 3
+        
         try:
             # Parse message
             body = json.loads(message.body.decode())
+            
+            # Check retry count from headers
+            retry_count = 0
+            if message.headers and 'x-retry-count' in message.headers:
+                retry_count = message.headers['x-retry-count']
             
             # Check for handler by message type
             message_type = body.get('type')
@@ -131,8 +138,13 @@ class EventHandler_Service:
                         logging.info(f"✅ Successfully processed '{message_type}': {result}")
                     except Exception as e:
                         logging.error(f"❌ Handler failed for '{message_type}': {e}")
-                        # Reject with requeue
-                        await message.reject(requeue=True)
+                        # Only requeue if under retry limit
+                        if retry_count < MAX_RETRIES:
+                            await message.reject(requeue=True)
+                        else:
+                            # Max retries exceeded - discard message
+                            logging.error(f"❌ Message '{message_type}' exceeded max retries ({MAX_RETRIES}), discarding")
+                            await message.reject(requeue=False)
             else:
                 # No handler found
                 logging.warning(f"⚠️ No handler for message type '{message_type}' in queue '{queue_name}'")
